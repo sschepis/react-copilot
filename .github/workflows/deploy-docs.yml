@@ -45,7 +45,7 @@ jobs:
         run: |
           gem install bundler
           bundle install
-          npm install glob
+          npm ci
           
       - name: Prepare Docs
         run: |

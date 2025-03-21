@@ -149,7 +149,7 @@ export const ChatOverlay: React.FC<ChatOverlayProps> = ({
               backgroundColor: '#f8f8f8',
             }}
           >
-            React LLM UI Assistant
+            React Copilot Assistant
           </div>
           
           {/* Messages area */}

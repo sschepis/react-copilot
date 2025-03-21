@@ -12,7 +12,7 @@ export interface ValidationRule {
 
 /**
  * Example plugin that validates component code before execution
- * This plugin demonstrates how to create a plugin for the React LLM UI system
+ * This plugin demonstrates how to create a plugin for the React Copilot system
  */
 export class ValidationPlugin implements Plugin {
   id = 'code-validation-plugin';

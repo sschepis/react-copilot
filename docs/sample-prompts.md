@@ -1,6 +1,6 @@
-# Sample Prompts for React LLM UI
+# Sample Prompts for React Copilot
 
-This document provides example prompts you can use with the React LLM UI chat interface to modify your application.
+This document provides example prompts you can use with the React Copilot chat interface to modify your application.
 
 ## UI Modifications
 

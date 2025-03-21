@@ -4,9 +4,14 @@
  * This script adds YAML front matter to markdown files in the docs directory
  * to prepare them for use with Jekyll.
  */
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import glob from 'glob';
+
+// Get the current directory (equivalent to __dirname in CommonJS)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration
 const docsDir = path.join(__dirname, '..', 'docs');

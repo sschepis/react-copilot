@@ -1,6 +1,6 @@
-# React LLM UI Enhancement Project TODO
+# React Copilot Enhancement Project TODO
 
-This document contains a comprehensive checklist of tasks for enhancing the React LLM UI library based on the architectural design.
+This document contains a comprehensive checklist of tasks for enhancing the React Copilot library based on the architectural design.
 
 ## Phase 1: Core Architecture Enhancement
 

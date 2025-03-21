@@ -1,6 +1,6 @@
-# Installation Guide for React LLM UI
+# Installation Guide for React Copilot
 
-This guide will walk you through the process of setting up React LLM UI in your React application.
+This guide will walk you through the process of setting up React Copilot in your React application.
 
 ## Prerequisites
 

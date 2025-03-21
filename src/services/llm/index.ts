@@ -1,52 +1,72 @@
-// Import provider interfaces directly to use in the file
-import { 
-  LLMProviderAdapter, 
-  LLMProviderConfig, 
-  LLMCapabilities, 
-  ModelOption 
-} from './LLMProviderAdapter';
+/**
+ * LLM Service Module
+ * 
+ * This module provides services for interacting with LLM providers,
+ * handling different provider implementations, and managing code generation.
+ */
 
-// Export provider interfaces
-export {
-  LLMProviderAdapter,
-  LLMProviderConfig,
+// Re-export from core (new architecture)
+export * from './core';
+
+// Export the adapters for backward compatibility
+export { default as LLMManager } from './LLMManagerAdapter';
+export { LLMProviderAdapter } from './LLMProviderAdapter';
+
+// Re-export useful types
+import {
+  LLMProviderType,
   LLMCapabilities,
-  ModelOption
+  ModelOption,
+  LLMProviderConfig,
+  SendMessageOptions,
+  SendMessageResponse,
+  StreamingChunkEvent,
+  CodeGenerationOptions,
+  CodeGenerationResult,
+  ErrorRecoveryEvents,
+  StreamingUpdateEvents,
+  LLMManagerEvents
+} from './core/types';
+
+export {
+  LLMProviderType,
+  LLMCapabilities,
+  ModelOption,
+  LLMProviderConfig,
+  SendMessageOptions,
+  SendMessageResponse,
+  StreamingChunkEvent,
+  CodeGenerationOptions,
+  CodeGenerationResult,
+  ErrorRecoveryEvents,
+  StreamingUpdateEvents,
+  LLMManagerEvents
 };
 
-// Export manager and events
-export {
-  LLMManager,
-  LLMManagerEvents
-} from './LLMManager';
-
-// Export provider implementations
-export * from './providers';
-
-// Environment variable helpers
-export function getEnvVariable(name: string): string | undefined {
-  if (typeof window !== 'undefined') {
-    // Browser environment
-    return (window as any).env?.[name] || process.env?.[`REACT_APP_${name}`];
-  } else {
-    // Node environment
-    return process.env?.[name];
-  }
-}
+/**
+ * Create default instances for backward compatibility
+ * These are created here to avoid circularity with the adapters
+ */
+import { ErrorRecoveryService } from './core/ErrorRecoveryService';
+import { StreamingUpdateManager } from './core/StreamingUpdateManager';
+import LLMManagerClass from './LLMManagerAdapter';
 
 /**
- * Legacy function to maintain backward compatibility
- * Creates an LLM service based on the provided configuration
- * @deprecated Use LLMManager instead
+ * Default LLM manager instance for backward compatibility
+ * @deprecated Use llmManager from './core' instead
  */
-export function createLLMService(config: LLMProviderConfig): LLMProviderAdapter {
-  const { createProvider } = require('./providers');
-  const provider = createProvider(config.provider || 'openai');
-  
-  // Initialize the provider with the config
-  provider.initialize(config).catch((error: Error) => {
-    console.error(`Error initializing provider '${config.provider}':`, error);
-  });
-  
-  return provider;
-}
+export const defaultLLMManager = new LLMManagerClass();
+
+/**
+ * @deprecated Use ErrorRecoveryService from './core' instead
+ */
+export { ErrorRecoveryService };
+
+/**
+ * @deprecated Use StreamingUpdateManager from './core' instead
+ */
+export { StreamingUpdateManager };
+
+// Re-export everything from the core module as the default export
+import * as Core from './core';
+export default Core;

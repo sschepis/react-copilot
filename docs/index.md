@@ -79,7 +79,7 @@ This sets up a complete React application with React Copilot already integrated.
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (

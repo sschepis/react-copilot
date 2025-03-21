@@ -1,0 +1,24 @@
+import React from 'react';
+import { useRegisteredComponent } from '../hooks/useRegisteredComponent';
+import './Card.css';
+
+export interface CardProps {
+  title: string;
+  content: string;
+}
+
+/**
+ * Card component for displaying information
+ */
+function Card({ title, content }: CardProps) {
+  const { ref } = useRegisteredComponent('Card');
+
+  return (
+    <div ref={ref} className="Card">
+      <h3>{title}</h3>
+      <p>{content}</p>
+    </div>
+  );
+}
+
+export default Card;

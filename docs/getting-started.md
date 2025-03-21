@@ -46,7 +46,7 @@ Wrap your application with the React Copilot providers:
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -73,7 +73,7 @@ For the LLM to modify a component, you need to register it using the `useModifia
 
 ```jsx
 import React from 'react';
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function Dashboard() {
   // Register component as modifiable
@@ -138,7 +138,7 @@ You can control what the LLM is allowed to modify in your application:
 The Debug Panel provides tools for inspecting and monitoring components:
 
 ```jsx
-import { DebugPanel } from 'react-copilot';
+import { DebugPanel } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -158,7 +158,7 @@ function App() {
 Autonomous Mode allows the LLM to implement a list of requirements automatically:
 
 ```jsx
-import { AutonomousAgent } from 'react-copilot';
+import { AutonomousAgent } from '@sschepis/react-copilot';
 
 function App() {
   const requirements = `
@@ -187,7 +187,7 @@ function App() {
 Extend React Copilot functionality with plugins:
 
 ```jsx
-import { DocumentationPlugin, AnalyticsPlugin, ValidationPlugin } from 'react-copilot';
+import { DocumentationPlugin, AnalyticsPlugin, ValidationPlugin } from '@sschepis/react-copilot';
 
 function App() {
   return (

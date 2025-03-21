@@ -39,7 +39,7 @@ import {
   DocumentationPlugin,
   AnalyticsPlugin,
   PerformancePlugin,
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -91,7 +91,7 @@ Plugins can hook into various points in the React Copilot system:
 You can create custom plugins by implementing the Plugin interface:
 
 ```typescript
-import { Plugin, PluginManager } from 'react-copilot';
+import { Plugin, PluginManager } from '@sschepis/react-copilot';
 
 class MyCustomPlugin implements Plugin {
   id = 'my-custom-plugin';

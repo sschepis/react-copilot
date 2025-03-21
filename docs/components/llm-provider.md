@@ -11,7 +11,7 @@ The `LLMProvider` is the core component that initializes the LLM functionality a
 ## Import
 
 ```jsx
-import { LLMProvider } from 'react-copilot';
+import { LLMProvider } from '@sschepis/react-copilot';
 ```
 
 ## Props
@@ -86,7 +86,7 @@ interface DebugOptions {
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -110,7 +110,7 @@ function App() {
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -157,7 +157,7 @@ import {
   ChatOverlay,
   DocumentationPlugin,
   AnalyticsPlugin,
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   return (

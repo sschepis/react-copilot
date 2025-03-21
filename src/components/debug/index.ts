@@ -1,10 +1,22 @@
 /**
  * Debug components for inspecting ModifiableComponents
  */
+// Export main debug panel
 export { DebugPanel } from './DebugPanel';
-export { ComponentTree } from './ComponentTree';
-export { PropsMonitor } from './PropsMonitor';
-export { StateMonitor } from './StateMonitor';
-export { RelationshipView } from './RelationshipView';
 
+// Export base components
+export * from './base';
+
+// Export individual debug components
+export * from './components';
+
+// Export types for public API
 export type { DebugPanelProps } from './DebugPanel';
+
+// Export theme utilities from utils/theme
+export {
+  ThemeConfig,
+  lightTheme,
+  darkTheme,
+  createThemeVariables
+} from '../../utils/theme';

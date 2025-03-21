@@ -1,52 +1,20 @@
-/* Debug Panel styles */
-.debug-panel {
-  position: fixed;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 9999;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 14px;
+/* Debug Panel Styles */
+.standard-debug-panel {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #333;
 }
 
-/* Panel positioning */
-.debug-panel-top-right {
-  top: 20px;
-  right: 20px;
-}
-
-.debug-panel-top-left {
-  top: 20px;
-  left: 20px;
-}
-
-.debug-panel-bottom-right {
-  bottom: 20px;
-  right: 20px;
-}
-
-.debug-panel-bottom-left {
-  bottom: 20px;
-  left: 20px;
-}
-
-/* Panel header */
+/* Header Styles */
 .debug-panel-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 15px;
-  background-color: #6c63ff;
-  color: white;
-  border-bottom: 1px solid #dee2e6;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
 }
 
-.debug-panel-header h2 {
+.debug-panel-title {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
@@ -54,206 +22,208 @@
 
 .debug-panel-controls {
   display: flex;
-  align-items: center;
+  gap: 4px;
 }
 
-.debug-panel-minimize {
-  background: none;
+.debug-panel-control {
+  background: transparent;
   border: none;
-  color: white;
-  font-size: 20px;
   cursor: pointer;
-  padding: 0 5px;
+  padding: 4px;
+  border-radius: 4px;
+  color: #555;
 }
 
-.debug-panel-minimize:hover {
-  opacity: 0.8;
+.debug-panel-control:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Panel content */
+/* Content Styles */
 .debug-panel-content {
   display: flex;
-  flex: 1;
+  height: calc(100% - 42px); /* Adjust based on header height */
   overflow: hidden;
 }
 
 .debug-panel-sidebar {
-  width: 200px;
-  border-right: 1px solid #dee2e6;
+  width: 240px;
+  border-right: 1px solid #ddd;
   overflow-y: auto;
-  background-color: #f1f3f5;
+  flex-shrink: 0;
 }
 
-.debug-panel-main {
+.debug-panel-main-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  padding: 12px;
 }
 
-/* Component tree */
+/* Tree View Styles */
 .component-tree {
-  padding: 10px;
+  padding: 8px;
 }
 
 .component-tree-header {
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 12px;
-  color: #666;
+  padding: 4px 8px;
+  margin-bottom: 8px;
 }
 
-.component-tree-item {
-  padding: 5px;
-  margin: 3px 0;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.2s ease;
-}
-
-.component-tree-item:hover {
-  background-color: #e9ecef;
-}
-
-.component-tree-item.selected {
-  background-color: #e7f5ff;
-  color: #228be6;
-  font-weight: 500;
-}
-
-.component-tree-children {
-  margin-left: 15px;
-  border-left: 1px dashed #ced4da;
-  padding-left: 8px;
+.component-tree-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .component-tree-empty {
-  padding: 10px;
-  color: #868e96;
-  font-style: italic;
+  padding: 12px;
   text-align: center;
+  color: #666;
+  font-style: italic;
 }
 
-/* Debug panel toggle button */
-.debug-panel-toggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 8px 15px;
-  background-color: #6c63ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  z-index: 9999;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+/* Tree Item Styles */
+.tree-item-container {
+  margin-bottom: 2px;
 }
 
-.debug-panel-toggle:hover {
-  background-color: #5a52d5;
-}
-
-/* Tabs */
-.debug-panel-tabs {
+.tree-item {
   display: flex;
-  border-bottom: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-}
-
-.debug-panel-tabs button {
-  padding: 8px 15px;
-  border: none;
-  background: none;
+  align-items: center;
+  padding: 4px 8px;
   cursor: pointer;
-  font-size: 14px;
-  color: #495057;
-  border-bottom: 2px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
 }
 
-.debug-panel-tabs button:hover {
-  background-color: #e9ecef;
+.tree-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.debug-panel-tabs button.active {
-  color: #6c63ff;
-  border-bottom: 2px solid #6c63ff;
+.tree-item-selected {
+  background-color: rgba(0, 120, 255, 0.1);
   font-weight: 500;
 }
 
-.debug-panel-tab-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
+.tree-item-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  margin-right: 4px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.debug-panel-empty-state {
+.tree-item-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-item-children {
+  margin-left: 16px;
+}
+
+/* Empty State */
+.debug-panel-empty-selection {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #868e96;
+  color: #666;
+  text-align: center;
   font-style: italic;
 }
 
-/* Monitors */
-.monitor-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+/* Props and State Monitors */
+.props-monitor, .state-monitor {
+  padding: 8px;
 }
 
-.monitor-table th {
-  text-align: left;
-  padding: 8px;
-  background-color: #f1f3f5;
-  border-bottom: 1px solid #dee2e6;
+.props-monitor-title, .state-monitor-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
   font-weight: 600;
 }
 
-.monitor-table td {
+.props-monitor-item, .state-monitor-item {
+  margin-bottom: 8px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.props-monitor-key, .state-monitor-key {
+  background-color: #f5f5f5;
   padding: 6px 8px;
-  border-bottom: 1px solid #eee;
-  word-break: break-word;
-}
-
-.monitor-property {
   font-weight: 500;
-  color: #228be6;
+  font-size: 13px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
 }
 
-.monitor-type {
-  color: #868e96;
+.props-monitor-value, .state-monitor-value {
+  padding: 8px;
   font-family: monospace;
+  font-size: 13px;
+  overflow-x: auto;
 }
 
-.monitor-value {
-  font-family: monospace;
+.props-monitor-value pre, .state-monitor-value pre {
+  margin: 0;
+  white-space: pre-wrap;
 }
 
-.monitor-empty {
-  color: #868e96;
-  font-style: italic;
+.props-monitor-empty, .state-monitor-empty {
+  padding: 12px;
   text-align: center;
-  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Shared state indicator */
+.state-monitor-shared {
+  border-color: #b8e0ff;
+}
+
+.state-monitor-shared .state-monitor-key {
+  background-color: #e6f4ff;
+}
+
+.state-monitor-shared-badge {
+  font-size: 11px;
+  background-color: #0084ff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
 }
 
 /* Relationship view */
 .relationship-view {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  padding: 8px;
 }
 
-.relationship-section h3 {
-  margin: 0 0 8px 0;
+.relationship-view-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.relationship-section {
+  margin-bottom: 16px;
+}
+
+.relationship-section h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
   font-size: 14px;
-  color: #495057;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 5px;
+  font-weight: 600;
 }
 
 .relationship-list {
@@ -262,21 +232,46 @@
   margin: 0;
 }
 
-.relationship-list li {
-  padding: 5px;
-  margin: 3px 0;
-  background-color: #f8f9fa;
-  border-radius: 3px;
+.relationship-item {
+  padding: 6px 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin-bottom: 4px;
   cursor: pointer;
+  transition: background-color 0.1s ease;
 }
 
-.relationship-list li:hover {
-  background-color: #e9ecef;
+.relationship-item:hover {
+  background-color: #e8e8e8;
 }
 
 .relationship-empty {
-  color: #868e96;
+  color: #666;
   font-style: italic;
-  font-size: 13px;
-  padding: 5px;
+  padding: 4px 0;
+}
+
+/* Position utilities */
+.debug-panel-toggle.position-top-right {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+}
+
+.debug-panel-toggle.position-top-left {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+}
+
+.debug-panel-toggle.position-bottom-right {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+}
+
+.debug-panel-toggle.position-bottom-left {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
 }

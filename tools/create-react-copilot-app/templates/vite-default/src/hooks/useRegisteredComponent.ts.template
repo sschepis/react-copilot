@@ -1,0 +1,35 @@
+import { useState, useEffect } from 'react';
+import { useModifiableComponent } from 'react-copilot';
+import { componentRegistry } from '../utils/componentRegistry';
+
+/**
+ * Hook for using a component that's registered in the component registry
+ * This provides a more structured approach to modifiable components by
+ * using the component registry to store and retrieve source code
+ * 
+ * @param componentName Name of the component in the registry
+ * @returns Component reference for modifiable components
+ */
+export function useRegisteredComponent(componentName: string) {
+  const [sourceCode, setSourceCode] = useState<string | undefined>(
+    componentRegistry.getComponentSource(componentName)
+  );
+  
+  // Get the component ref using the useModifiableComponent hook
+  const { ref, updateComponent } = useModifiableComponent(componentName, sourceCode);
+  
+  // When the component is modified by the LLM, update the registry
+  useEffect(() => {
+    if (sourceCode) {
+      componentRegistry.registerComponent(componentName, sourceCode);
+    }
+  }, [componentName, sourceCode]);
+  
+  return { 
+    ref, 
+    updateComponent,
+    sourceCode
+  };
+}
+
+export default useRegisteredComponent;

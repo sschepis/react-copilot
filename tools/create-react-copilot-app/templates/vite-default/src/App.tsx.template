@@ -1,0 +1,53 @@
+import { useEffect } from 'react';
+import { 
+  LLMProvider, 
+  ModifiableApp, 
+  ChatOverlay{{debugPanelImport}}
+} from 'react-copilot';
+{{pluginImports}}
+import './App.css';
+
+// Import components
+import Dashboard from './components/Dashboard';
+import { componentRegistry, initializeRegistry } from './utils/componentRegistry';
+
+/**
+ * Main App component
+ * This is the entry point of the application and wraps everything with
+ * the necessary providers for React Copilot functionality
+ */
+function App() {
+  // Initialize the component registry on app start
+  useEffect(() => {
+    initializeRegistry();
+    console.log('Component registry initialized');
+  }, []);
+
+  return (
+    <LLMProvider
+      config={{
+        provider: '{{provider}}',
+        model: '{{model}}',
+      }}{{pluginsConfig}}
+    >
+      <ModifiableApp>
+        <div className="App">
+          <header className="App-header">
+            <h1>React Copilot App</h1>
+            <p>
+              Edit components using the AI chat interface or modify this file directly.
+            </p>
+            <p className="App-instructions">
+              Click the chat icon in the bottom right corner to start interacting with the AI assistant.
+            </p>
+          </header>
+          <Dashboard />
+        </div>
+      </ModifiableApp>
+      <ChatOverlay position="bottom-right" />
+      {{debugPanelComponent}}
+    </LLMProvider>
+  );
+}
+
+export default App;

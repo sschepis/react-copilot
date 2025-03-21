@@ -1,127 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import { useComponentContext } from '../../context/ComponentContext';
-import { ComponentTree } from './ComponentTree';
-import { PropsMonitor } from './PropsMonitor';
-import { StateMonitor } from './StateMonitor';
-import { RelationshipView } from './RelationshipView';
+import React, { useState } from 'react';
+import { BaseDebugPanel, BaseDebugPanelProps } from './base/BaseDebugPanel';
+import { ComponentTree } from './components/ComponentTree';
+import { PropsMonitor } from './components/PropsMonitor';
+import { StateMonitor } from './components/StateMonitor';
+import { RelationshipView } from './components/RelationshipView';
+import { DebugTabs } from './components/DebugTabs';
+import { useComponentContext } from '../../context/ComponentContextProvider';
 import './DebugPanel.css';
 
-export interface DebugPanelProps {
-  initialVisible?: boolean;
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
-  width?: number | string;
-  height?: number | string;
+export interface DebugPanelProps extends Omit<BaseDebugPanelProps, 'mainContent' | 'sidebarContent'> {
+  // Additional props specific to DebugPanel
+  showRelationships?: boolean;
+  showPerformance?: boolean;
 }
 
 /**
- * A debugging panel that provides visibility into ModifiableComponents.
+ * Advanced debugging panel that provides visibility into ModifiableComponents.
  * Shows component tree, props, state, and relationships.
+ * Leverages BaseDebugPanel for core functionality.
  */
 export const DebugPanel: React.FC<DebugPanelProps> = ({
   initialVisible = false,
   position = 'bottom-right',
-  width = 400,
+  width = 600,
   height = 500,
+  theme = 'system',
+  className = '',
+  showRelationships = true,
+  showPerformance = false,
+  ...restProps
 }) => {
-  const [visible, setVisible] = useState(initialVisible);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'props' | 'state' | 'relationships'>('props');
   const { components, getComponent } = useComponentContext();
   
-  // Toggle visibility with keyboard shortcut (Alt+D)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.altKey && e.key === 'd') {
-        setVisible(prev => !prev);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-  
-  if (!visible) {
-    return (
-      <button 
-        className="debug-panel-toggle"
-        onClick={() => setVisible(true)}
-        title="Open Debug Panel (Alt+D)"
-      >
-        Debug
-      </button>
-    );
-  }
-  
   return (
-    <div 
-      className={`debug-panel debug-panel-${position}`}
-      style={{ width, height }}
-    >
-      <div className="debug-panel-header">
-        <h2>Component Debugger</h2>
-        <div className="debug-panel-controls">
-          <button 
-            className="debug-panel-minimize"
-            onClick={() => setVisible(false)}
-            title="Close Debug Panel (Alt+D)"
-          >
-            ×
-          </button>
-        </div>
-      </div>
-      
-      <div className="debug-panel-content">
-        <div className="debug-panel-sidebar">
-          <ComponentTree 
-            components={components} 
-            selectedComponentId={selectedComponent}
-            onSelectComponent={setSelectedComponent} 
+    <BaseDebugPanel
+      initialVisible={initialVisible}
+      position={position}
+      width={width}
+      height={height}
+      theme={theme}
+      className={`debug-panel ${className}`}
+      headerContent={<h2>React Copilot Debugger</h2>}
+      sidebarContent={
+        <div className="debug-panel-sidebar-content">
+          <h3 className="sidebar-heading">Components</h3>
+          <ComponentTree
+            components={components}
+            selectedComponentId={null} // BaseDebugPanel manages selection state
+            onSelectComponent={() => {}} // BaseDebugPanel handles this
           />
         </div>
-        
-        <div className="debug-panel-main">
-          {selectedComponent ? (
-            <>
-              <div className="debug-panel-tabs">
-                <button 
-                  className={activeTab === 'props' ? 'active' : ''}
-                  onClick={() => setActiveTab('props')}
-                >
-                  Props
-                </button>
-                <button 
-                  className={activeTab === 'state' ? 'active' : ''}
-                  onClick={() => setActiveTab('state')}
-                >
-                  State
-                </button>
-                <button 
-                  className={activeTab === 'relationships' ? 'active' : ''}
-                  onClick={() => setActiveTab('relationships')}
-                >
-                  Relationships
-                </button>
-              </div>
-              
-              <div className="debug-panel-tab-content">
-                {activeTab === 'props' && (
-                  <PropsMonitor component={getComponent(selectedComponent)!} />
-                )}
-                {activeTab === 'state' && (
-                  <StateMonitor component={getComponent(selectedComponent)!} />
-                )}
-                {activeTab === 'relationships' && (
-                  <RelationshipView component={getComponent(selectedComponent)!} />
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="debug-panel-empty-state">
-              <p>Select a component from the tree to inspect</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+      }
+      mainContent={(selectedComponentId) => 
+        selectedComponentId && getComponent(selectedComponentId) ? (
+          <DebugTabs
+            component={getComponent(selectedComponentId)!}
+            tabs={[
+              { 
+                id: 'props', 
+                label: 'Props', 
+                content: <PropsMonitor component={getComponent(selectedComponentId)!} /> 
+              },
+              { 
+                id: 'state', 
+                label: 'State', 
+                content: <StateMonitor component={getComponent(selectedComponentId)!} /> 
+              },
+              ...(showRelationships ? [{ 
+                id: 'relationships', 
+                label: 'Relationships', 
+                content: <RelationshipView 
+                  component={getComponent(selectedComponentId)!}
+                  components={components}
+                />
+              }] : []),
+              // Additional tabs can be added here conditionally
+            ]}
+          />
+        ) : (
+          <div className="debug-panel-empty-state">
+            <p>Select a component from the tree to inspect</p>
+          </div>
+        )
+      }
+      {...restProps}
+    />
   );
 };
+
+export default DebugPanel;

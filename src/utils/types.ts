@@ -1,5 +1,6 @@
 import { ReactNode, RefObject } from 'react';
 import { ModelOption, LLMCapabilities } from '../services/llm/LLMProviderAdapter';
+import { MessagePrepOptions } from '../context/core/types';
 
 // Debug panel types
 export interface DebugOptions {
@@ -37,6 +38,8 @@ export interface ChatSession {
   id: string;
   messages: Message[];
   title?: string;
+  timestamp?: number;
+  lastUpdated?: number;
   metadata?: Record<string, any>;
 }
 
@@ -48,92 +51,86 @@ export interface ModifiableComponent {
   sourceCode?: string;
   props?: Record<string, any>;
   path?: string[]; // Path in component tree
-  dependencies?: string[]; // Imported modules
-  versions?: ComponentVersion[]; // Version history
-  relationships?: ComponentRelationship; // Relationships with other components
+  state?: Record<string, any>;
+  version?: string;
+  componentType?: string;
+  isActive?: boolean;
+  metadata?: Record<string, any>;
+  
+  // Legacy properties for test compatibility
+  relationships?: {
+    parentId?: string;
+    childrenIds?: string[];
+    dependsOn?: string[];
+    dependedOnBy?: string[];
+  };
 }
 
 export interface ComponentVersion {
   id: string;
   timestamp: number;
   sourceCode: string;
-  description: string;
+  description?: string;
   author?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface ComponentRelationship {
-  parentId?: string;
   childrenIds: string[];
   siblingIds: string[];
-  dependsOn: string[]; // Components this component depends on
-  dependedOnBy: string[]; // Components that depend on this component
-  sharedStateKeys: string[]; // State keys shared with other components
+  dependsOn: string[];
+  dependedOnBy: string[];
+  sharedStateKeys: string[];
 }
 
-export interface ComponentRegistryState {
-  components: Record<string, ModifiableComponent>;
-}
-
-// Permissions
-export interface Permissions {
-  allowComponentCreation: boolean;
-  allowComponentDeletion: boolean;
-  allowStyleChanges: boolean;
-  allowLogicChanges: boolean;
-  allowDataAccess: boolean;
-  allowNetworkRequests: boolean;
-  // Enhanced permissions
-  rolesAllowed?: string[];
-  customValidationRules?: ValidationRule[];
-}
-
-export interface ValidationRule {
-  id: string;
-  description: string;
-  validate: (code: string, component: ModifiableComponent) => boolean | Promise<boolean>;
-  errorMessage: string;
-}
-
-// Autonomous mode types
-export interface AutonomousConfig {
-  enabled: boolean;
-  requirements: string | string[];
-  schedule?: 'onMount' | 'manual' | 'daily';
-  feedbackEnabled?: boolean;
-  maxChangesPerSession?: number;
-}
-
-export interface AutonomousTask {
-  id: string;
-  description: string;
-  status: 'pending' | 'inProgress' | 'completed' | 'failed';
-  result?: string;
-  error?: string;
-  componentIds?: string[]; // Components affected by this task
-}
-
-// Code execution types
 export interface CodeChangeRequest {
   componentId: string;
-  sourceCode: string;
-  description: string;
-}
-
-export interface CrossComponentChangeRequest {
-  componentIds: string[];
-  changes: Record<string, string>; // componentId -> new source code
-  description: string;
+  newCode: string;
+  description?: string;
+  autoFormat?: boolean;
+  createVersion?: boolean;
+  metadata?: Record<string, any>;
+  sourceCode?: string; // Added for backward compatibility with tests
 }
 
 export interface CodeChangeResult {
   success: boolean;
-  error?: string;
   componentId: string;
-  newSourceCode?: string;
-  diff?: string;
+  error?: string;
+  versionId?: string;
+  affectedComponents?: string[];
+  newSourceCode?: string; // Added for backward compatibility with tests
 }
 
-// LLM Provider information
+export interface CrossComponentChangeRequest {
+  changes: Record<string, string>; // componentId -> new code
+  description?: string;
+  autoFormat?: boolean;
+  createVersion?: boolean;
+  metadata?: Record<string, any>;
+  componentIds?: string[]; // Added for backward compatibility with tests
+}
+
+// LLM Context types
+export interface LLMContextValue {
+  config: LLMConfig;
+  permissions: Permissions;
+  autonomousConfig: AutonomousConfig;
+  chatSessions: ChatSession[];
+  currentSession: ChatSession | null;
+  isProcessing: boolean;
+  error: string | null;
+  providerInfo: ProviderInfo | null;
+  availableProviders: ProviderInfo[];
+  createSession: () => ChatSession;
+  selectSession: (id: string) => boolean;
+  sendMessage: (content: string, options?: MessagePrepOptions) => Promise<Message>;
+  streamMessage?: (content: string, onChunk: (chunk: string) => void, options?: MessagePrepOptions) => Promise<Message>;
+  switchProvider: (providerId: string, newConfig?: LLMConfig) => Promise<void>;
+  registerStateAdapter: (adapter: StateAdapter) => void;
+  getStateAdapters: () => StateAdapter[];
+}
+
 export interface ProviderInfo {
   id: string;
   name: string;
@@ -142,118 +139,48 @@ export interface ProviderInfo {
   isAvailable: boolean;
 }
 
-// State Management
+// State management adapters
 export interface StateAdapter {
-  type: 'redux' | 'zustand' | 'mobx' | 'react-query' | 'context' | 'custom';
-  getState: () => any;
-  getStateSlice: (path: string) => any;
-  subscribeToChanges: (callback: (state: any) => void) => () => void;
-  getActions: () => Record<string, Function>;
-  executeAction: (name: string, payload?: any) => Promise<void>;
-  modifyState: (path: string, value: any) => Promise<void>;
-}
-
-// Provider props
-export interface LLMProviderProps {
-  config: LLMConfig;
-  permissions?: Partial<Permissions>;
-  autonomousMode?: Partial<AutonomousConfig>;
-  stateAdapters?: StateAdapter[];
-  children: ReactNode;
-}
-
-export interface ModifiableAppProps {
-  children: ReactNode;
-  debug?: DebugOptions;
-}
-
-export interface ChatOverlayProps {
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
-  initialOpen?: boolean;
-  width?: number | string;
-  height?: number | string;
-  theme?: 'light' | 'dark' | 'auto';
-}
-
-export interface AutonomousAgentProps {
-  requirements?: string | string[];
-  schedule?: 'onMount' | 'manual' | 'daily';
-  feedback?: boolean;
-  maxChangesPerSession?: number;
-}
-
-// Hook return types
-export interface UseLLMReturn {
-  sendMessage: (message: string) => Promise<Message>;
-  streamMessage?: (message: string, onChunk: (chunk: string) => void) => Promise<Message>;
-  messages: Message[];
-  isProcessing: boolean;
-  error: string | null;
-  reset: () => void;
-  getProviderInfo: () => ProviderInfo;
-  switchProvider: (providerId: string, config?: LLMConfig) => Promise<void>;
-}
-
-export interface UseModifiableComponentReturn {
-  ref: RefObject<HTMLDivElement>;
-  componentId: string;
-  registerSourceCode: (sourceCode: string) => void;
-  getVersionHistory: () => ComponentVersion[];
-  revertToVersion: (versionId: string) => Promise<boolean>;
-}
-
-export interface UseAutonomousModeReturn {
-  isEnabled: boolean;
-  tasks: AutonomousTask[];
-  startAutonomousMode: () => Promise<void>;
-  stopAutonomousMode: () => void;
-  status: 'idle' | 'running' | 'paused' | 'completed';
-}
-
-// Plugin system types
-export interface Plugin {
   id: string;
   name: string;
-  version: string;
-  hooks: PluginHooks;
-  initialize: (context: PluginContext) => Promise<void>;
-  destroy: () => Promise<void>;
+  getState: () => Record<string, any>;
+  subscribe: (callback: (state: Record<string, any>) => void) => () => void;
+  dispatch?: (action: any) => void;
+  getActions?: () => string[];
 }
 
-export interface PluginHooks {
-  beforeComponentRegistration?: (component: ModifiableComponent) => ModifiableComponent;
-  afterComponentRegistration?: (component: ModifiableComponent) => void;
-  beforeCodeExecution?: (code: string) => string;
-  afterCodeExecution?: (result: CodeChangeResult) => void;
-  beforeLLMRequest?: (prompt: string) => string;
-  afterLLMResponse?: (response: string) => string;
+// Permissions types
+export interface Permissions {
+  allowCodeExecution: boolean;
+  allowFilesystemAccess: boolean;
+  allowNetworkAccess: boolean;
+  allowStateModification: boolean;
+  allowExternalLibraries: boolean;
+  maxTokensPerRequest: number;
+  restrictedPaths: string[];
+  restrictedModules: string[];
+  allowedDomains: string[];
+  allowEditing: boolean;
+  // Legacy properties needed for compatibility
+  allowComponentCreation?: boolean;
+  allowComponentDeletion?: boolean;
+  allowStyleChanges?: boolean;
+  allowLogicChanges?: boolean;
+  allowDataAccess?: boolean;
+  allowNetworkRequests?: boolean;
 }
 
-export interface PluginContext {
-  llmManager: any; // Will be the LLMManager instance
-  componentRegistry: any; // Will be the ComponentRegistry instance
-  getState: () => any; // Access to application state
-}
-
-// Context types
-export interface LLMContextValue {
-  config: LLMConfig;
-  permissions: Permissions;
-  autonomousConfig: AutonomousConfig;
-  chatSessions: ChatSession[];
-  currentSession: ChatSession | null;
-  createSession: () => ChatSession;
-  selectSession: (id: string) => void;
-  sendMessage: (message: string) => Promise<Message>;
-  streamMessage?: (message: string, onChunk: (chunk: string) => void) => Promise<Message>;
-  isProcessing: boolean;
-  error: string | null;
-  // Enhanced context values
-  providerInfo: ProviderInfo;
-  availableProviders: ProviderInfo[];
-  switchProvider: (providerId: string, config?: LLMConfig) => Promise<void>;
-  registerStateAdapter: (adapter: StateAdapter) => void;
-  getStateAdapters: () => StateAdapter[];
+// Autonomous mode configuration
+export interface AutonomousConfig {
+  enabled: boolean;
+  maxSteps: number;
+  requiredConfidence: number;
+  autoSave: boolean;
+  autoTest: boolean;
+  selfCorrect: boolean;
+  decisionModel?: string;
+  executionModel?: string;
+  throttleDelay?: number;
 }
 
 export interface ComponentContextValue {
@@ -263,12 +190,14 @@ export interface ComponentContextValue {
   updateComponent: (id: string, updates: Partial<ModifiableComponent>) => void;
   getComponent: (id: string) => ModifiableComponent | null;
   executeCodeChange: (request: CodeChangeRequest) => Promise<CodeChangeResult>;
-  // Enhanced context values
   getComponentVersions: (id: string) => ComponentVersion[];
   revertToVersion: (componentId: string, versionId: string) => Promise<boolean>;
   getComponentRelationships: (id: string) => ComponentRelationship;
   executeMultiComponentChange: (request: CrossComponentChangeRequest) => Promise<Record<string, CodeChangeResult>>;
   getAffectedComponents: (componentId: string) => string[];
+  // Additional methods (previously in ExtendedComponentContextValue)
+  getRelatedStateKeys: (componentId: string) => string[];
+  visualizeComponentGraph: () => any;
 }
 
 // Performance profiling types
@@ -278,5 +207,92 @@ export interface PerformanceProfile {
   averageRenderTime: number;
   memoizationEffectiveness: number;
   stateAccessPatterns: Record<string, number>;
-  recommendedOptimizations: string[];
+  recommendedOptimizations?: Array<{
+    type: string;
+    description: string;
+    priority: 'low' | 'medium' | 'high';
+    implementation?: string;
+  }> | string[]; // Allow string[] for backward compatibility with tests
+}
+
+// Accessibility analysis types
+export interface AccessibilityIssue {
+  componentId: string;
+  issueType: 'contrast' | 'aria' | 'keyboard' | 'semantics' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  element?: string;
+  suggestion?: string;
+}
+
+// Library of pre-built components and templates
+export interface ComponentLibraryItem {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  sourceCode: string;
+  preview?: string;
+  author?: string;
+  dependencies?: string[];
+  usageExample?: string;
+  category: 'layout' | 'input' | 'display' | 'navigation' | 'feedback' | 'other';
+}
+
+// Plugin system types
+export interface PluginContext {
+  getComponent: (id: string) => ModifiableComponent | null;
+  getAllComponents: () => Record<string, ModifiableComponent>;
+  getRelationships: (componentId: string) => ComponentRelationship;
+  addMessage: (message: { type: string; content: string; level?: 'info' | 'warning' | 'error' }) => void;
+  setMetadata: (componentId: string, key: string, value: any) => void;
+  getMetadata: (componentId: string, key: string) => any;
+  updateComponent?: (id: string, updates: Partial<ModifiableComponent>) => void;
+  
+  // Legacy properties for test compatibility
+  getState: () => any; // Made required for test compatibility
+  llmManager?: any; // Added for test compatibility
+  
+  // Legacy component registry interface for test compatibility
+  componentRegistry?: {
+    getComponent: (id: string) => ModifiableComponent | null;
+    getAllComponents: () => Record<string, ModifiableComponent>;
+    updateComponent: (id: string, updates: Partial<ModifiableComponent>) => void;
+  };
+}
+
+export interface PluginHooks {
+  // Component lifecycle hooks
+  beforeComponentRegister?: (component: ModifiableComponent) => ModifiableComponent;
+  beforeComponentRegistration?: (component: ModifiableComponent) => ModifiableComponent; // Alias for backward compatibility
+  afterComponentRegister?: (component: ModifiableComponent) => void;
+  afterComponentRegistration?: (component: ModifiableComponent) => void; // Alias for backward compatibility
+  beforeComponentUpdate?: (componentId: string, updates: Partial<ModifiableComponent>) => Partial<ModifiableComponent>;
+  afterComponentUpdate?: (component: ModifiableComponent) => void;
+  
+  // Code change hooks
+  beforeCodeChange?: (request: CodeChangeRequest) => CodeChangeRequest;
+  afterCodeChange?: (result: CodeChangeResult) => CodeChangeResult;
+  
+  // Legacy hooks (for test compatibility)
+  beforeCodeExecution?: (code: string) => string;
+  afterCodeExecution?: (result: CodeChangeResult) => CodeChangeResult | void;
+  beforeLLMRequest?: (prompt: string) => string;
+  afterLLMResponse?: (response: string) => string;
+  
+  // Error handling
+  onError?: (error: Error, componentId?: string) => void;
+}
+
+export interface Plugin {
+  id: string;
+  name: string;
+  description?: string; // Made optional for backward compatibility with tests
+  version: string;
+  hooks: PluginHooks;
+  initialize?: (context: PluginContext) => Promise<void> | void;
+  destroy?: () => Promise<void> | void;
+  getCapabilities?: () => string[];
+  isCompatible?: (component: ModifiableComponent) => boolean;
+  configure?: (options: Record<string, any>) => void;
 }

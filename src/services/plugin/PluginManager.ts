@@ -20,9 +20,32 @@ export class PluginManager {
     private getState: () => any = () => ({})
   ) {
     this.context = {
+      // Required properties from PluginContext interface
+      getComponent: (id: string) => componentRegistry?.getComponent?.(id) || null,
+      getAllComponents: () => componentRegistry?.getAllComponents?.() || {},
+      getRelationships: (id: string) => componentRegistry?.getComponentRelationships?.(id) || {
+        childrenIds: [], siblingIds: [], dependsOn: [], dependedOnBy: [], sharedStateKeys: []
+      },
+      addMessage: (message: { type: string; content: string; level?: 'info' | 'warning' | 'error' }) => {
+        console.log(`Plugin message [${message.level || 'info'}]: ${message.content}`);
+      },
+      setMetadata: (componentId: string, key: string, value: any) => {
+        const component = componentRegistry?.getComponent?.(componentId);
+        if (component) {
+          if (!component.metadata) component.metadata = {};
+          component.metadata[key] = value;
+          componentRegistry?.updateComponent?.(componentId, { metadata: component.metadata });
+        }
+      },
+      getMetadata: (componentId: string, key: string) => {
+        const component = componentRegistry?.getComponent?.(componentId);
+        return component?.metadata?.[key];
+      },
+      
+      // Legacy properties for tests
+      getState: this.getState,
       llmManager,
-      componentRegistry,
-      getState: this.getState
+      componentRegistry
     };
   }
   
@@ -50,8 +73,12 @@ export class PluginManager {
     }
     
     try {
-      await plugin.initialize(this.context);
-      console.log(`Initialized plugin: ${plugin.name}`);
+      if (plugin.initialize) {
+        await plugin.initialize(this.context);
+        console.log(`Initialized plugin: ${plugin.name}`);
+      } else {
+        console.log(`Plugin ${plugin.name} has no initialize method`);
+      }
     } catch (error) {
       console.error(`Error initializing plugin ${plugin.name}:`, error);
       throw error;
@@ -106,10 +133,14 @@ export class PluginManager {
   applyHooksToComponentRegistration(component: ModifiableComponent): ModifiableComponent {
     let modifiedComponent = { ...component };
     
-    // Apply beforeComponentRegistration hooks
+    // Apply component registration hooks (with backward compatibility)
     for (const plugin of this.plugins.values()) {
-      if (plugin.hooks?.beforeComponentRegistration) {
-        modifiedComponent = plugin.hooks.beforeComponentRegistration(modifiedComponent);
+      // Use either the new name or the legacy name for backward compatibility
+      const beforeRegisterHook = plugin.hooks?.beforeComponentRegister ||
+                               plugin.hooks?.beforeComponentRegistration;
+      
+      if (beforeRegisterHook) {
+        modifiedComponent = beforeRegisterHook(modifiedComponent);
       }
     }
     
@@ -122,10 +153,14 @@ export class PluginManager {
    * @param component The registered component
    */
   notifyComponentRegistered(component: ModifiableComponent): void {
-    // Apply afterComponentRegistration hooks
+    // Apply after component registration hooks (with backward compatibility)
     for (const plugin of this.plugins.values()) {
-      if (plugin.hooks?.afterComponentRegistration) {
-        plugin.hooks.afterComponentRegistration(component);
+      // Use either the new name or the legacy name for backward compatibility
+      const afterRegisterHook = plugin.hooks?.afterComponentRegister ||
+                              plugin.hooks?.afterComponentRegistration;
+                              
+      if (afterRegisterHook) {
+        afterRegisterHook(component);
       }
     }
   }
@@ -201,12 +236,18 @@ export class PluginManager {
    * Destroy all plugins and clean up resources
    */
   async destroyAllPlugins(): Promise<void> {
-    const destroyPromises = Array.from(this.plugins.values()).map(plugin => 
-      plugin.destroy().catch(err => {
-        console.error(`Error destroying plugin ${plugin.name}:`, err);
-        return Promise.resolve(); // Continue with other plugins even if one fails
-      })
-    );
+    const destroyPromises = Array.from(this.plugins.values()).map(plugin => {
+      if (plugin.destroy) {
+        const result = plugin.destroy();
+        if (result instanceof Promise) {
+          return result.catch((err: Error) => {
+            console.error(`Error destroying plugin ${plugin.name}:`, err);
+            return Promise.resolve(); // Continue with other plugins even if one fails
+          });
+        }
+      }
+      return Promise.resolve(); // Return resolved promise for plugins without destroy method
+    });
     
     await Promise.all(destroyPromises);
     console.log('All plugins destroyed');

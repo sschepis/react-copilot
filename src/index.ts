@@ -10,6 +10,13 @@ export { ComponentTree } from './components/debug/ComponentTree';
 export { PropsMonitor } from './components/debug/PropsMonitor';
 export { StateMonitor } from './components/debug/StateMonitor';
 export { RelationshipView } from './components/debug/RelationshipView';
+export {
+  debugTheme,
+  darkDebugTheme,
+  createThemeVariables
+} from './components/debug/theme';
+export type { ThemeVariables } from './components/debug/theme';
+export type { DebugPanelProps } from './components/debug/DebugPanel';
 
 // Export hooks
 export { useLLM } from './hooks/useLLM';

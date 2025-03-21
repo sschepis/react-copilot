@@ -11,7 +11,7 @@ The `useModifiableComponent` hook is a core part of React Copilot, allowing you 
 ## Import
 
 ```jsx
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 ```
 
 ## Parameters
@@ -59,7 +59,7 @@ When you use this hook:
 
 ```jsx
 import React from 'react';
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function Button({ text, onClick }) {
   const { ref } = useModifiableComponent(
@@ -94,7 +94,7 @@ function Button({ text, onClick }) {
 
 ```jsx
 import React, { useState, useEffect } from 'react';
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function ProfileCard({ user }) {
   const { 
@@ -161,7 +161,7 @@ function ProfileCard({ user }) {
 
 ```jsx
 import React, { useEffect } from 'react';
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function DynamicComponent({ data, config }) {
   const { ref, registerSourceCode } = useModifiableComponent(

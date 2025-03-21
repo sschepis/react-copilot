@@ -13,7 +13,7 @@ This example shows the minimum setup required to add React Copilot's chat functi
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -78,7 +78,7 @@ import {
   ChatOverlay,
   DebugPanel,
   useModifiableComponent
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -280,7 +280,7 @@ import {
   ModifiableApp,
   AutonomousAgent,
   useModifiableComponent
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   // Define requirements for the autonomous agent
@@ -429,7 +429,7 @@ import {
   ModifiableApp,
   ChatOverlay,
   ReduxAdapter
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 // Redux reducer
 const initialState = {
@@ -568,7 +568,7 @@ import {
   PerformancePlugin,
   ValidationPlugin,
   AccessibilityPlugin
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -633,7 +633,7 @@ import {
   DebugPanel,
   useDebug,
   useModifiableComponent
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 function App() {
   return (

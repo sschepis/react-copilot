@@ -172,7 +172,7 @@ export class PerformancePlugin implements Plugin {
     this._context = context;
     
     // Set up tracking for existing components
-    const components = context.componentRegistry.getAllComponents();
+    const components = context.componentRegistry?.getAllComponents() || context.getAllComponents();
     
     // Process each component in the registry
     Object.values(components).forEach((component) => {

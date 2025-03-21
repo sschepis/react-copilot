@@ -1,0 +1,95 @@
+import { useState } from 'react'
+import { 
+  LLMProvider, 
+  ModifiableApp, 
+  ChatOverlay{{debugPanelImport}}
+} from 'react-copilot'
+{{pluginImports}}
+import './App.css'
+import { useModifiableComponent } from 'react-copilot'
+
+function App() {
+  return (
+    <LLMProvider
+      config={{
+        provider: '{{provider}}',
+        model: '{{model}}',
+      }}{{pluginsConfig}}
+    >
+      <ModifiableApp>
+        <div className="App">
+          <header className="App-header">
+            <h1>React Copilot App</h1>
+            <p>
+              Edit components using the AI chat interface or modify this file directly.
+            </p>
+            <p className="App-instructions">
+              Click the chat icon in the bottom right corner to start interacting with the AI assistant.
+            </p>
+          </header>
+          <Dashboard />
+        </div>
+      </ModifiableApp>
+      <ChatOverlay position="bottom-right" />
+      {{debugPanelComponent}}
+    </LLMProvider>
+  )
+}
+
+function Dashboard() {
+  // Example component that can be modified by the LLM
+  const { ref } = useModifiableComponent(
+    'Dashboard',
+    `function Dashboard() {
+      const { ref } = useModifiableComponent('Dashboard');
+      return (
+        <div ref={ref} className="Dashboard">
+          <h2>Welcome to your React Copilot App</h2>
+          <p>This component can be modified by the LLM through the chat interface.</p>
+          <div className="Dashboard-cards">
+            <Card title="Features" content="Try asking the AI to add new components or modify existing ones." />
+            <Card title="Plugins" content="This app includes several plugins that extend its capabilities." />
+            <Card title="Examples" content="Try asking: 'Add a dark mode toggle' or 'Create a user profile section'." />
+          </div>
+        </div>
+      );
+    }`
+  )
+
+  return (
+    <div ref={ref} className="Dashboard">
+      <h2>Welcome to your React Copilot App</h2>
+      <p>This component can be modified by the LLM through the chat interface.</p>
+      <div className="Dashboard-cards">
+        <Card title="Features" content="Try asking the AI to add new components or modify existing ones." />
+        <Card title="Plugins" content="This app includes several plugins that extend its capabilities." />
+        <Card title="Examples" content="Try asking: 'Add a dark mode toggle' or 'Create a user profile section'." />
+      </div>
+    </div>
+  )
+}
+
+function Card({ title, content }) {
+  // Example component that can be modified by the LLM
+  const { ref } = useModifiableComponent(
+    'Card',
+    `function Card({ title, content }) {
+      const { ref } = useModifiableComponent('Card');
+      return (
+        <div ref={ref} className="Card">
+          <h3>{title}</h3>
+          <p>{content}</p>
+        </div>
+      );
+    }`
+  )
+
+  return (
+    <div ref={ref} className="Card">
+      <h3>{title}</h3>
+      <p>{content}</p>
+    </div>
+  )
+}
+
+export default App

@@ -11,7 +11,7 @@ The `ModifiableApp` component is a wrapper that enables hot-reloading and dynami
 ## Import
 
 ```jsx
-import { ModifiableApp } from 'react-copilot';
+import { ModifiableApp } from '@sschepis/react-copilot';
 ```
 
 ## Props
@@ -50,7 +50,7 @@ The `ModifiableApp` component:
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -70,7 +70,7 @@ function App() {
 
 ```jsx
 import React from 'react';
-import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+import { LLMProvider, ModifiableApp, ChatOverlay } from '@sschepis/react-copilot';
 
 function App() {
   return (
@@ -100,7 +100,7 @@ For components inside `ModifiableApp` to be modifiable, they must be registered 
 
 ```jsx
 import React from 'react';
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function Header() {
   const { ref } = useModifiableComponent(

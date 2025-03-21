@@ -125,7 +125,8 @@ export class DocumentationPlugin implements Plugin {
       
       // Re-extract metadata if code has changed
       if (this.componentMetadata.has(result.componentId)) {
-        const component = this.context?.componentRegistry.getComponent(result.componentId);
+        const component = this.context?.componentRegistry?.getComponent?.(result.componentId) ||
+                         this.context?.getComponent?.(result.componentId);
         if (component) {
           const metadata = this.extractComponentMetadata({
             ...component,
@@ -174,7 +175,7 @@ export class DocumentationPlugin implements Plugin {
     }
     
     // Set up initial documentation for existing components
-    const components = context.componentRegistry.getAllComponents();
+    const components = context.componentRegistry?.getAllComponents() || context.getAllComponents();
     Object.entries(components).forEach(([id, comp]) => {
       // Type guard to check if the component has the expected structure
       if (comp && 
@@ -474,7 +475,8 @@ export class DocumentationPlugin implements Plugin {
       return;
     }
     
-    const component = this.context?.componentRegistry.getComponent(componentId);
+    const component = this.context?.componentRegistry?.getComponent?.(componentId) ||
+                     this.context?.getComponent?.(componentId);
     if (!component || !component.sourceCode) {
       return;
     }
@@ -517,10 +519,16 @@ export class DocumentationPlugin implements Plugin {
         const jsDoc = docs.jsDoc;
         const updatedCode = jsDoc + '\n' + component.sourceCode;
         
-        // Update the component in the registry
-        this.context?.componentRegistry.updateComponent(componentId, {
-          sourceCode: updatedCode
-        });
+        // Update the component in the registry - use either direct method or through registry
+        if (this.context?.componentRegistry?.updateComponent) {
+          this.context.componentRegistry.updateComponent(componentId, {
+            sourceCode: updatedCode
+          });
+        } else if (this.context?.updateComponent) {
+          this.context.updateComponent(componentId, {
+            sourceCode: updatedCode
+          });
+        }
         
         console.log(`[DocumentationPlugin] Added JSDoc to ${metadata.name}`);
       } catch (error) {

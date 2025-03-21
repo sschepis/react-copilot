@@ -348,17 +348,17 @@ function MyComponent() {
 import dynamic from 'next/dynamic';
 
 const LLMProvider = dynamic(
-  () => import('react-copilot').then(mod => mod.LLMProvider),
+  () => import('@sschepis/react-copilot').then(mod => mod.LLMProvider),
   { ssr: false }
 );
 
 const ModifiableApp = dynamic(
-  () => import('react-copilot').then(mod => mod.ModifiableApp),
+  () => import('@sschepis/react-copilot').then(mod => mod.ModifiableApp),
   { ssr: false }
 );
 
 const ChatOverlay = dynamic(
-  () => import('react-copilot').then(mod => mod.ChatOverlay),
+  () => import('@sschepis/react-copilot').then(mod => mod.ChatOverlay),
   { ssr: false }
 );
 ```
@@ -370,7 +370,7 @@ const ChatOverlay = dynamic(
 **Solutions**:
 - Ensure you've installed the correct types
 - Check version compatibility between React Copilot and TypeScript
-- Explicitly import types from 'react-copilot'
+- Explicitly import types from '@sschepis/react-copilot'
 - Use proper generic typing for components
 
 ```tsx
@@ -381,7 +381,7 @@ import {
   ChatOverlay,
   LLMConfig,
   Permissions
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 
 const config: LLMConfig = {
   provider: 'openai',
@@ -424,7 +424,7 @@ To debug component registration issues:
 1. Access the component registry from React Copilot tools:
 
 ```jsx
-import { useComponentContext } from 'react-copilot';
+import { useComponentContext } from '@sschepis/react-copilot';
 
 function DebugTool() {
   const { components } = useComponentContext();
@@ -446,7 +446,7 @@ function DebugTool() {
 React Copilot uses error boundaries to prevent crashes, but you can implement your own for more control:
 
 ```jsx
-import { ErrorBoundary } from 'react-copilot';
+import { ErrorBoundary } from '@sschepis/react-copilot';
 
 <ErrorBoundary
   fallback={({ error, resetErrorBoundary }) => (

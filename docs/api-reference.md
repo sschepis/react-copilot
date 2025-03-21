@@ -12,7 +12,7 @@ This document provides a comprehensive reference for React Copilot's API, includ
 ### LLMProvider
 
 ```jsx
-import { LLMProvider } from 'react-copilot';
+import { LLMProvider } from '@sschepis/react-copilot';
 
 <LLMProvider
   config={LLMConfig}
@@ -71,7 +71,7 @@ interface DebugOptions {
 ### ModifiableApp
 
 ```jsx
-import { ModifiableApp } from 'react-copilot';
+import { ModifiableApp } from '@sschepis/react-copilot';
 
 <ModifiableApp
   debug={ModifiableAppDebugOptions}
@@ -96,7 +96,7 @@ interface ModifiableAppDebugOptions {
 ### ChatOverlay
 
 ```jsx
-import { ChatOverlay } from 'react-copilot';
+import { ChatOverlay } from '@sschepis/react-copilot';
 
 <ChatOverlay
   position="bottom-right"
@@ -122,7 +122,7 @@ import { ChatOverlay } from 'react-copilot';
 ### AutonomousAgent
 
 ```jsx
-import { AutonomousAgent } from 'react-copilot';
+import { AutonomousAgent } from '@sschepis/react-copilot';
 
 <AutonomousAgent
   requirements="Add a dark mode toggle, improve form validation"
@@ -148,7 +148,7 @@ import { AutonomousAgent } from 'react-copilot';
 ### DebugPanel
 
 ```jsx
-import { DebugPanel } from 'react-copilot';
+import { DebugPanel } from '@sschepis/react-copilot';
 
 <DebugPanel
   position="right"
@@ -178,7 +178,7 @@ import { DebugPanel } from 'react-copilot';
 ### useModifiableComponent
 
 ```jsx
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const {
@@ -216,7 +216,7 @@ function MyComponent() {
 ### useLLM
 
 ```jsx
-import { useLLM } from 'react-copilot';
+import { useLLM } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const {
@@ -251,7 +251,7 @@ function MyComponent() {
 ### useAutonomousMode
 
 ```jsx
-import { useAutonomousMode } from 'react-copilot';
+import { useAutonomousMode } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const {
@@ -293,7 +293,7 @@ function MyComponent() {
 ### useDebug
 
 ```jsx
-import { useDebug } from 'react-copilot';
+import { useDebug } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const {
@@ -337,7 +337,7 @@ function MyComponent() {
 ### DocumentationPlugin
 
 ```jsx
-import { DocumentationPlugin } from 'react-copilot';
+import { DocumentationPlugin } from '@sschepis/react-copilot';
 
 const docPlugin = new DocumentationPlugin({
   generateJsDocs: true,
@@ -360,7 +360,7 @@ const docPlugin = new DocumentationPlugin({
 ### AnalyticsPlugin
 
 ```jsx
-import { AnalyticsPlugin } from 'react-copilot';
+import { AnalyticsPlugin } from '@sschepis/react-copilot';
 
 const analyticsPlugin = new AnalyticsPlugin({
   endpointUrl: '/api/analytics',
@@ -382,7 +382,7 @@ const analyticsPlugin = new AnalyticsPlugin({
 ### PerformancePlugin
 
 ```jsx
-import { PerformancePlugin } from 'react-copilot';
+import { PerformancePlugin } from '@sschepis/react-copilot';
 
 const perfPlugin = new PerformancePlugin({
   injectMonitoring: true,
@@ -404,7 +404,7 @@ const perfPlugin = new PerformancePlugin({
 ### ValidationPlugin
 
 ```jsx
-import { ValidationPlugin } from 'react-copilot';
+import { ValidationPlugin } from '@sschepis/react-copilot';
 
 const validationPlugin = new ValidationPlugin({
   strictMode: true,
@@ -505,7 +505,7 @@ REACT_APP_DEBUG_PANEL_ENABLED=true
 ## Constants
 
 ```jsx
-import { VERSION } from 'react-copilot';
+import { VERSION } from '@sschepis/react-copilot';
 
 console.log(`React Copilot version: ${VERSION}`);
 ```
@@ -523,7 +523,7 @@ import {
   ChatSession,
   ComponentVersion,
   // ... and other types
-} from 'react-copilot';
+} from '@sschepis/react-copilot';
 ```
 
 For more detailed information on each component, hook, or plugin, refer to their respective documentation pages.

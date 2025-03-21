@@ -11,7 +11,7 @@ The `DocumentationPlugin` automatically generates and maintains documentation fo
 ## Import
 
 ```jsx
-import { DocumentationPlugin } from 'react-copilot';
+import { DocumentationPlugin } from '@sschepis/react-copilot';
 ```
 
 ## Configuration Options
@@ -32,7 +32,7 @@ import { DocumentationPlugin } from 'react-copilot';
 
 ```jsx
 import React from 'react';
-import { LLMProvider, DocumentationPlugin } from 'react-copilot';
+import { LLMProvider, DocumentationPlugin } from '@sschepis/react-copilot';
 
 function App() {
   return (

@@ -15,6 +15,8 @@
   },
   "files": [
     "bin/",
+    "lib/",
+    "utils/",
     "templates/",
     "README.md",
     "LICENSE"
@@ -31,7 +33,8 @@
     "generator",
     "template",
     "scaffold",
-    "create-react-app"
+    "create-react-app",
+    "vite"
   ],
   "author": "",
   "license": "MIT",

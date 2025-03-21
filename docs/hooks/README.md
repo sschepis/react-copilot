@@ -24,7 +24,7 @@ React Copilot provides several custom hooks that allow you to interact with the 
 The most common hook you'll use is `useModifiableComponent`, which registers a component to be modifiable by the LLM:
 
 ```jsx
-import { useModifiableComponent } from 'react-copilot';
+import { useModifiableComponent } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const { ref } = useModifiableComponent(
@@ -50,7 +50,7 @@ function MyComponent() {
 For direct interaction with the LLM from your components:
 
 ```jsx
-import { useLLM } from 'react-copilot';
+import { useLLM } from '@sschepis/react-copilot';
 
 function MyComponent() {
   const { sendMessage, isProcessing } = useLLM();
@@ -73,7 +73,7 @@ function MyComponent() {
 For controlling autonomous mode programmatically:
 
 ```jsx
-import { useAutonomousMode } from 'react-copilot';
+import { useAutonomousMode } from '@sschepis/react-copilot';
 
 function ControlPanel() {
   const { 
@@ -104,7 +104,7 @@ function ControlPanel() {
 For debugging components and their state:
 
 ```jsx
-import { useDebug } from 'react-copilot';
+import { useDebug } from '@sschepis/react-copilot';
 
 function DebugControls() {
   const { 

@@ -1,0 +1,44 @@
+{
+  "name": "create-react-llm-app",
+  "version": "0.1.0",
+  "description": "CLI tool to create React applications with React Copilot (LLM UI) pre-configured",
+  "main": "index.js",
+  "bin": {
+    "create-react-llm-app": "./bin/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "llm",
+    "ai",
+    "copilot",
+    "cli",
+    "generator",
+    "template",
+    "scaffold",
+    "create-react-app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "fs-extra": "^11.1.1",
+    "inquirer": "^9.2.10",
+    "ora": "^7.0.1",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.16.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/create-react-llm-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/create-react-llm-app/issues"
+  }
+}

@@ -32,33 +32,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.183.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.1'
-          bundler-cache: true
+          node-version: '18'
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
       - name: Install Dependencies
         run: |
-          gem install bundler
-          bundle install
           npm ci
           
       - name: Prepare Docs
         run: |
           chmod +x scripts/prepare-docs-for-jekyll.js
           node scripts/prepare-docs-for-jekyll.js
-          
-      - name: Build Site
-        run: bundle exec jekyll build
         
-      - name: Upload Artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "_site/"
+          path: "./"
 
   deploy:
     environment:

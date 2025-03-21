@@ -1,3 +1,9 @@
+---
+title: useModifiableComponent
+nav_order: 999
+parent: React Copilot Hooks
+permalink: /hooks/use-modifiable-component
+---
 # useModifiableComponent
 
 The `useModifiableComponent` hook is a core part of React Copilot, allowing you to register a component as modifiable by the LLM. It provides the necessary infrastructure for the LLM to understand, modify, and track versions of your component.

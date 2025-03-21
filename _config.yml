@@ -7,10 +7,9 @@ description: >-
 url: "https://yourusername.github.io/react-copilot" # Replace with your actual GitHub Pages URL
 baseurl: "/react-copilot" # The subpath of your site, e.g. /blog
 
-# Build settings
+# Build settings for GitHub Pages compatibility
 markdown: kramdown
-highlighter: rouge
-remote_theme: pmarsceill/just-the-docs
+remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-seo-tag

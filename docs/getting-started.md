@@ -1,3 +1,8 @@
+---
+title: Getting Started with React Copilot
+nav_order: 3
+permalink: /getting-started
+---
 # Getting Started with React Copilot
 
 This guide will walk you through the process of integrating React Copilot into your React application and using its key features.

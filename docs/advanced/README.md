@@ -1,3 +1,9 @@
+---
+title: Advanced Usage
+nav_order: 40
+has_children: true
+permalink: /advanced
+---
 # Advanced Usage
 
 This section covers advanced usage patterns, customization options, security considerations, and integration techniques for React Copilot.

@@ -1,3 +1,8 @@
+---
+title: Sample Prompts for React Copilot
+nav_order: 9
+permalink: /sample-prompts
+---
 # Sample Prompts for React Copilot
 
 This document provides example prompts you can use with the React Copilot chat interface to modify your application.

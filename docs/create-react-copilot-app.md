@@ -1,3 +1,8 @@
+---
+title: Create React LLM App
+nav_order: 8
+permalink: /create-react-copilot-app
+---
 # Create React LLM App
 
 React Copilot includes a CLI tool called `create-react-llm-app` that helps you quickly set up a new React project with React Copilot pre-configured. This is similar to Create React App but with built-in AI capabilities.

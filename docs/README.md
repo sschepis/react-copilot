@@ -1,3 +1,9 @@
+---
+title: React Copilot Documentation
+nav_order: 999
+has_children: true
+permalink: 
+---
 # React Copilot Documentation
 
 Welcome to the comprehensive documentation for React Copilot, a powerful library that enables React applications to be controlled and modified by Large Language Models (LLMs) through natural language conversations.

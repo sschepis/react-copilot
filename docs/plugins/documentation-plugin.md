@@ -1,3 +1,9 @@
+---
+title: Documentation Plugin
+nav_order: 999
+parent: React Copilot Plugins
+permalink: /plugins/documentation-plugin
+---
 # Documentation Plugin
 
 The `DocumentationPlugin` automatically generates and maintains documentation for your React components as they are modified by the LLM. It can create JSDoc comments, README files, and component API documentation.

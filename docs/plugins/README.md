@@ -1,3 +1,9 @@
+---
+title: React Copilot Plugins
+nav_order: 30
+has_children: true
+permalink: /plugins
+---
 # React Copilot Plugins
 
 React Copilot includes a powerful plugin system that extends its functionality through specialized modules. This section documents each plugin, its configuration options, usage examples, and best practices.

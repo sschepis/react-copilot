@@ -1,3 +1,8 @@
+---
+title: Installation Guide for React Copilot
+nav_order: 2
+permalink: /installation-guide
+---
 # Installation Guide for React Copilot
 
 This guide will walk you through the process of setting up React Copilot in your React application.

@@ -1,3 +1,8 @@
+---
+title: Troubleshooting Guide
+nav_order: 7
+permalink: /troubleshooting
+---
 # Troubleshooting Guide
 
 This guide helps you diagnose and resolve common issues with React Copilot.

@@ -1,3 +1,9 @@
+---
+title: React Copilot Components
+nav_order: 10
+has_children: true
+permalink: /components
+---
 # React Copilot Components
 
 React Copilot provides several key components that form the foundation of its functionality. This section documents each component, its props, usage examples, and best practices.

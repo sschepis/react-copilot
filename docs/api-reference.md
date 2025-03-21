@@ -1,3 +1,8 @@
+---
+title: API Reference
+nav_order: 4
+permalink: /api-reference
+---
 # API Reference
 
 This document provides a comprehensive reference for React Copilot's API, including components, hooks, plugins, and utility functions.

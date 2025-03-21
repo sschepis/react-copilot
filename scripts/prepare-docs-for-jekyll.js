@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * This script adds YAML front matter to markdown files in the docs directory
- * to prepare them for use with Jekyll.
+ * This script adds basic YAML front matter to markdown files in the docs directory
+ * to prepare them for use with Jekyll, without requiring a local Jekyll installation.
  */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import glob from 'glob';
+import { globSync } from 'glob';
 
 // Get the current directory (equivalent to __dirname in CommonJS)
 const __filename = fileURLToPath(import.meta.url);
@@ -106,22 +106,15 @@ function generateFrontMatter(filePath, content) {
   return frontMatter.join('\n');
 }
 
-// Main function to process all markdown files
-function processMarkdownFiles() {
-  const files = glob.sync('**/*.md', { cwd: docsDir });
-  
-  console.log(`Processing ${files.length} markdown files in ${docsDir}...`);
-  
-  let updatedCount = 0;
-  
-  files.forEach(file => {
-    const filePath = path.join(docsDir, file);
+// Process a single file
+function processFile(filePath) {
+  try {
     const content = fs.readFileSync(filePath, 'utf8');
     
     // Skip files that already have front matter
     if (content.startsWith('---\n')) {
-      console.log(`Skipping ${file} (already has front matter)`);
-      return;
+      console.log(`Skipping ${path.relative(docsDir, filePath)} (already has front matter)`);
+      return false;
     }
     
     // Generate front matter
@@ -130,17 +123,47 @@ function processMarkdownFiles() {
     
     // Write updated content back to file
     fs.writeFileSync(filePath, newContent, 'utf8');
-    updatedCount++;
-    console.log(`Updated ${file}`);
-  });
-  
-  console.log(`\nDone! Updated ${updatedCount} files.`);
+    console.log(`Updated ${path.relative(docsDir, filePath)}`);
+    return true;
+  } catch (error) {
+    console.error(`Error processing file ${filePath}:`, error);
+    return false;
+  }
+}
+
+// Main function to process all markdown files
+function processMarkdownFiles() {
+  try {
+    // Use fs.readdirSync and recursively traverse instead of glob
+    const files = [];
+    function traverseDirectory(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          traverseDirectory(fullPath);
+        } else if (entry.isFile() && entry.name.endsWith('.md')) {
+          files.push(fullPath);
+        }
+      }
+    }
+    
+    traverseDirectory(docsDir);
+    console.log(`Processing ${files.length} markdown files in ${docsDir}...`);
+    
+    let updatedCount = 0;
+    for (const file of files) {
+      if (processFile(file)) {
+        updatedCount++;
+      }
+    }
+    
+    console.log(`\nDone! Updated ${updatedCount} files.`);
+  } catch (error) {
+    console.error('Error processing markdown files:', error);
+    process.exit(1);
+  }
 }
 
 // Execute the script
-try {
-  processMarkdownFiles();
-} catch (error) {
-  console.error('Error processing markdown files:', error);
-  process.exit(1);
-}
+processMarkdownFiles();

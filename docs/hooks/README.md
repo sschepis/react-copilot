@@ -1,3 +1,9 @@
+---
+title: React Copilot Hooks
+nav_order: 20
+has_children: true
+permalink: /hooks
+---
 # React Copilot Hooks
 
 React Copilot provides several custom hooks that allow you to interact with the LLM functionality and integrate it with your components. This section documents each hook, its parameters, return values, usage examples, and best practices.

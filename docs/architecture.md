@@ -1,3 +1,8 @@
+---
+title: React Copilot Architecture
+nav_order: 5
+permalink: /architecture
+---
 # React Copilot Architecture
 
 This document provides an overview of React Copilot's architecture, explaining the core concepts, key components, and data flows within the library.

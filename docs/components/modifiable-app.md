@@ -1,3 +1,9 @@
+---
+title: ModifiableApp
+nav_order: 999
+parent: React Copilot Components
+permalink: /components/modifiable-app
+---
 # ModifiableApp
 
 The `ModifiableApp` component is a wrapper that enables hot-reloading and dynamic modification of your application components. It serves as a container for the components that can be modified by the LLM.

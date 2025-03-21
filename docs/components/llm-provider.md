@@ -1,3 +1,9 @@
+---
+title: LLMProvider
+nav_order: 999
+parent: React Copilot Components
+permalink: /components/llm-provider
+---
 # LLMProvider
 
 The `LLMProvider` is the core component that initializes the LLM functionality and provides the configuration context to all child components.

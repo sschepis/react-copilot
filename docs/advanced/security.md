@@ -1,3 +1,9 @@
+---
+title: Security Considerations
+nav_order: 999
+parent: Advanced Usage
+permalink: /advanced/security
+---
 # Security Considerations
 
 This document outlines the security features and best practices for using React Copilot safely. Since the library allows LLM-driven modifications to your application, understanding these security aspects is crucial.

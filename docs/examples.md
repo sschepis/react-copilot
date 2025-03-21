@@ -1,3 +1,8 @@
+---
+title: React Copilot Examples
+nav_order: 6
+permalink: /examples
+---
 # React Copilot Examples
 
 This document provides practical examples of using React Copilot in various scenarios to help you understand how to implement and leverage its features effectively.

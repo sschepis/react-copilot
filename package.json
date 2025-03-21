@@ -44,6 +44,7 @@
     "acorn-walk": "^8.2.0",
     "esbuild": "^0.19.2",
     "eventsource-parser": "^1.0.0",
+    "jekyll": "^3.0.0-beta1",
     "lodash": "^4.17.21",
     "nanoid": "^4.0.2",
     "react-markdown": "^8.0.7",

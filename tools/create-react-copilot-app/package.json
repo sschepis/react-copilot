@@ -1,14 +1,26 @@
 {
-  "name": "create-react-llm-app",
+  "name": "create-react-copilot-app",
   "version": "0.1.0",
-  "description": "CLI tool to create React applications with React Copilot (LLM UI) pre-configured",
+  "description": "CLI tool to create React applications with React Copilot pre-configured",
   "main": "index.js",
   "bin": {
-    "create-react-llm-app": "./bin/cli.js"
+    "create-react-copilot-app": "./bin/cli.js"
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test test/",
+    "prepare": "chmod +x bin/cli.js",
+    "lint": "eslint .",
+    "prepublishOnly": "npm test"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "react",
@@ -36,9 +48,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/create-react-llm-app.git"
+    "url": "https://github.com/sschepis/react-copilot.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/create-react-llm-app/issues"
+    "url": "https://github.com/sschepis/react-copilot/issues"
   }
 }

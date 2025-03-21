@@ -60,6 +60,16 @@ or
 yarn add react-copilot
 ```
 
+## Create React Copilot App
+
+We provide a CLI tool to quickly create a new React project with React Copilot pre-configured:
+
+```bash
+npx create-react-copilot-app my-app
+```
+
+This sets up a complete React application with React Copilot already integrated. Learn more about [Create React Copilot App](create-react-copilot-app.md).
+
 ## Quick Example
 
 ```jsx

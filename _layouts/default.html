@@ -1,0 +1,66 @@
+---
+layout: default
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+  {% include head.html %}
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="side-bar">
+      <div class="site-header">
+        <a href="{{ '/' | relative_url }}" class="site-title">
+          <img src="{{ '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title }}" class="site-logo">
+          {{ site.title }}
+        </a>
+        <button id="menu-button" class="site-button btn-reset" aria-label="Toggle menu" aria-pressed="false">
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+        </button>
+      </div>
+      <nav aria-label="Main" id="site-nav" class="site-nav">
+        {% include nav.html %}
+      </nav>
+    </div>
+    <div class="main-content-wrap">
+      <div class="main-content">
+        <div class="page-header">
+          <h1>{{ page.title }}</h1>
+          {% if page.description %}
+            <p class="page-description">{{ page.description }}</p>
+          {% endif %}
+        </div>
+        <div id="main-content" class="page-content" role="main">
+          {{ content }}
+          
+          {% if page.has_children == true and page.has_toc != false %}
+            <hr>
+            <h2 class="text-delta">Table of contents</h2>
+            {% assign children_list = site.pages | sort:"nav_order" %}
+            <ul>
+              {% for child in children_list %}
+                {% if child.parent == page.title and child.title != page.title %}
+                <li>
+                  <a href="{{ child.url | relative_url }}">{{ child.title }}</a>{% if child.summary %} - {{ child.summary }}{% endif %}
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+          
+          <div class="page-footer">
+            <hr>
+            <p><a href="https://github.com/{{ site.github_username }}/{{ site.github_repo }}/edit/main/{{ page.path }}" class="edit-link">Edit this page on GitHub</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

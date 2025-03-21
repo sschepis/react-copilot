@@ -1,0 +1,65 @@
+name: Publish create-react-copilot-app
+
+on:
+  workflow_dispatch:  # Allow manual triggers
+  push:
+    tags:
+      - 'v*'  # Run on version tags
+    paths:
+      - 'tools/create-react-copilot-app/**'  # Only run when the CLI tool files change
+  release:
+    types: [created]  # Run when a new release is created
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        working-directory: ./tools/create-react-copilot-app
+        run: npm ci
+        
+      - name: Prepare package
+        working-directory: ./tools/create-react-copilot-app
+        run: |
+          # Make bin file executable
+          chmod +x bin/cli.js
+          
+          # Create templates directory structure if not already present
+          mkdir -p templates/default/public
+          mkdir -p templates/default/src
+          
+          # Add placeholder files to ensure directories are committed
+          touch templates/default/public/.gitkeep
+          touch templates/default/src/.gitkeep
+          
+      - name: Test
+        working-directory: ./tools/create-react-copilot-app
+        run: npm test
+        
+      - name: Publish to NPM
+        working-directory: ./tools/create-react-copilot-app
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+        
+      - name: Add success comment
+        uses: actions/github-script@v5
+        if: github.event_name == 'release'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ create-react-copilot-app has been published to NPM successfully!'
+            })

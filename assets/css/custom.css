@@ -1,0 +1,123 @@
+/* Custom styles for React Copilot Documentation */
+
+:root {
+  --primary-color: #0066cc;
+  --secondary-color: #0099ff;
+  --accent-color: #ff6600;
+  --background-color: #f8f9fa;
+  --text-color: #333333;
+  --code-background: #f0f0f0;
+  --code-color: #d63384;
+  --border-color: #ddd;
+}
+
+/* Logo styling */
+.site-logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+/* Header styling */
+.site-header {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.site-title {
+  color: white !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Main content styling */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Code blocks */
+pre {
+  background-color: var(--code-background);
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+code {
+  color: var(--code-color);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  background-color: var(--code-background);
+}
+
+/* Feature boxes */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 2rem 0;
+}
+
+.feature-box {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-box h3 {
+  color: var(--primary-color);
+  margin-top: 0;
+}
+
+.feature-box p {
+  margin-bottom: 0;
+}
+
+/* Navigation improvements */
+.nav-list .nav-list-item .nav-list-link {
+  color: var(--text-color);
+}
+
+.nav-list .nav-list-item .nav-list-link.active {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* External link styling */
+a.external::after {
+  content: " ↗";
+  display: inline-block;
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+/* Edit link */
+.edit-link {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: 0.9em;
+  color: var(--secondary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

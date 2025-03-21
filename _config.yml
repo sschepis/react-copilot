@@ -1,0 +1,71 @@
+# Jekyll configuration for React Copilot Documentation
+
+title: React Copilot
+description: >-
+  A powerful library that enables React applications to be controlled and
+  modified by Large Language Models (LLMs) through natural language conversations.
+url: "https://yourusername.github.io/react-copilot" # Replace with your actual GitHub Pages URL
+baseurl: "/react-copilot" # The subpath of your site, e.g. /blog
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+remote_theme: pmarsceill/just-the-docs
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-relative-links
+  - jekyll-remote-theme
+
+# Just The Docs settings
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+aux_links:
+  "React Copilot on GitHub":
+    - "//github.com/yourusername/react-copilot"
+
+# Enable automatic page navigation
+nav_external_links:
+  - title: GitHub Repository
+    url: https://github.com/yourusername/react-copilot
+    hide_icon: false
+    opens_in_new_tab: true
+  - title: NPM Package
+    url: https://www.npmjs.com/package/react-copilot
+    hide_icon: false
+    opens_in_new_tab: true
+
+# Footer content
+footer_content: "Copyright &copy; 2025 React Copilot. Distributed under the <a href=\"https://github.com/yourusername/react-copilot/blob/main/LICENSE\">MIT License.</a>"
+
+# Collections
+collections:
+  docs:
+    permalink: "/:collection/:path/"
+    output: true
+
+just_the_docs:
+  collections:
+    docs:
+      name: Documentation
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/
+  - .idea/
+  - .vscode/
+  - tools/
+  - src/
+  - tests/
+  - example/
+  - LICENSE
+  - README.md
+  - package.json
+  - package-lock.json
+  - tsconfig.json
+  - jest.config.js
+  - rollup.config.js

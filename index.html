@@ -1,0 +1,121 @@
+---
+layout: default
+title: React Copilot Documentation
+nav_order: 1
+permalink: /
+---
+
+# React Copilot Documentation
+
+Welcome to the official documentation for React Copilot, a powerful library that enables React applications to be controlled and modified by Large Language Models (LLMs) through natural language conversations.
+
+## What is React Copilot?
+
+React Copilot is an npm package that connects your React application with AI language models like OpenAI's GPT models, Anthropic's Claude, or DeepSeek. It provides a chat interface where users can request UI changes, new features, or application improvements, and see them applied in real-time without losing application state.
+
+<div class="feature-grid">
+  <div class="feature-box">
+    <h3>Dynamic Component Modification</h3>
+    <p>Update React components on-the-fly without losing state</p>
+  </div>
+  <div class="feature-box">
+    <h3>Multi-Model Support</h3>
+    <p>Works with OpenAI, Anthropic Claude, and DeepSeek models</p>
+  </div>
+  <div class="feature-box">
+    <h3>Chat Interface</h3>
+    <p>Intuitive overlay for user interactions with AI</p>
+  </div>
+  <div class="feature-box">
+    <h3>Hot Reloading</h3>
+    <p>Apply changes without losing application state</p>
+  </div>
+  <div class="feature-box">
+    <h3>Plugin System</h3>
+    <p>Extend functionality with specialized plugins</p>
+  </div>
+  <div class="feature-box">
+    <h3>Debug Panel</h3>
+    <p>Interactive tools for component inspection</p>
+  </div>
+</div>
+
+## Getting Started
+
+To start using React Copilot, you can either:
+
+1. Install it in an existing React application:
+
+```bash
+npm install react-copilot
+```
+
+2. Create a new project with our CLI tool:
+
+```bash
+npx create-react-copilot-app my-app
+```
+
+Check out our [Getting Started Guide](docs/getting-started) for more detailed instructions.
+
+## Documentation Sections
+
+<div class="feature-grid">
+  <div class="feature-box">
+    <h3><a href="docs/installation-guide">Installation Guide</a></h3>
+    <p>Step-by-step installation instructions</p>
+  </div>
+  <div class="feature-box">
+    <h3><a href="docs/api-reference">API Reference</a></h3>
+    <p>Complete API documentation</p>
+  </div>
+  <div class="feature-box">
+    <h3><a href="docs/components">Components</a></h3>
+    <p>Documentation for React Copilot components</p>
+  </div>
+  <div class="feature-box">
+    <h3><a href="docs/hooks">Hooks</a></h3>
+    <p>Documentation for React Copilot hooks</p>
+  </div>
+  <div class="feature-box">
+    <h3><a href="docs/plugins">Plugins</a></h3>
+    <p>Documentation for available plugins</p>
+  </div>
+  <div class="feature-box">
+    <h3><a href="docs/troubleshooting">Troubleshooting</a></h3>
+    <p>Common issues and solutions</p>
+  </div>
+</div>
+
+## Example
+
+Here's a quick example of using React Copilot in your application:
+
+```jsx
+import React from 'react';
+import { LLMProvider, ModifiableApp, ChatOverlay } from 'react-copilot';
+
+function App() {
+  return (
+    <LLMProvider
+      config={{
+        provider: 'openai', // or 'anthropic' or 'deepseek'
+        model: 'gpt-4', // or 'claude-3-sonnet-20240229' or 'deepseek-chat'
+      }}
+    >
+      <ModifiableApp>
+        <YourExistingApp />
+      </ModifiableApp>
+      <ChatOverlay position="bottom-right" />
+    </LLMProvider>
+  );
+}
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](https://github.com/yourusername/react-copilot/blob/main/CONTRIBUTING.md) for more information.
+
+## License
+
+React Copilot is released under the MIT License.

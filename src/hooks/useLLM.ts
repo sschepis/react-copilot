@@ -1,6 +1,19 @@
 import { useState, useCallback } from 'react';
-import { Message, UseLLMReturn, ProviderInfo } from '../utils/types';
-import { useLLMContext } from '../context/LLMContext';
+import { Message, ProviderInfo } from '../utils/types';
+import { useLLMContext } from '../context/LLMContextProvider';
+
+/**
+ * Return type for the useLLM hook
+ */
+export interface UseLLMReturn {
+  sendMessage: (content: string) => Promise<Message>;
+  messages: Message[];
+  isProcessing: boolean;
+  error: string | null;
+  reset: () => void;
+  getProviderInfo: () => ProviderInfo | null;
+  switchProvider: (providerId: string, config?: any) => Promise<void>;
+}
 
 /**
  * Hook for interacting with the LLM
@@ -42,7 +55,7 @@ export function useLLM(): UseLLMReturn {
   }, []);
   
   // Get provider info
-  const getProviderInfo = useCallback((): ProviderInfo => {
+  const getProviderInfo = useCallback((): ProviderInfo | null => {
     return providerInfo;
   }, [providerInfo]);
   

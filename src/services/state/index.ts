@@ -1,29 +1,21 @@
 /**
- * State Management Module
- * Provides adapters for various state management libraries and tools for tracking state usage
+ * Main exports for the state management system
  */
 
-// Core interfaces and base classes
-export * from './StateAdapter';
+// Export the original StateAdapter
+export * from './StateAdapter.js';
 
-// State adapters
-export { ReduxAdapter } from './ReduxAdapter';
-export { ZustandAdapter } from './ZustandAdapter';
-export { MobXAdapter } from './MobXAdapter';
+// Export all types
+export * from './types/index.js';
 
-// State management and tracking
-export { 
-  StateManager, 
-  getStateManager, 
-  StateManagerEvents, 
-  StateChangeRequest, 
-  StateModificationResult 
-} from './StateManager';
+// Export the adapter interfaces and abstractions
+export * from './adapter/UnifiedStateAdapter.interface.js';
+export * from './adapter/UnifiedStateAdapter.abstract.js';
 
-export { 
-  StateTracker, 
-  getStateTracker, 
-  StateTrackerEvents, 
-  StateUsage, 
-  StateDependency 
-} from './StateTracker';
+// Export the manager
+export * from './manager/UnifiedStateManager.interface.js';
+export * from './manager/UnifiedStateManager.js';
+export * from './manager/utils.js';
+
+// Export the unified state system
+export * from './UnifiedStateSystem.js';

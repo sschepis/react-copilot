@@ -36,9 +36,36 @@ export { AnalyticsPlugin } from './services/plugin/plugins/AnalyticsPlugin';
 export { PerformancePlugin } from './services/plugin/plugins/PerformancePlugin';
 export { ValidationPlugin } from './services/plugin/plugins/ValidationPlugin';
 
+// Export modular UI system
+export {
+  // Core module types and registry
+  ModuleRegistry,
+  moduleRegistry,
+  registerModule,
+  registerModules,
+  
+  // Module visibility management
+  ModuleVisibilityContext,
+  useModuleVisibility,
+  ModuleVisibilityProvider,
+  
+  // UI components
+  UIControlPanel,
+  ModuleRenderer,
+  ModuleProvider,
+  
+  // Default modules
+  DebugPanelModule,
+  ChatOverlayModule,
+  MultiModalChatOverlayModule,
+  DefaultModules,
+  registerDefaultModules
+} from './components/ui-modules';
+
 // Export types
 export * from './utils/types';
 export * from './utils/types.multimodal';
+export * from './components/ui-modules/types';
 
 // Export version
 export const VERSION = '0.1.0';

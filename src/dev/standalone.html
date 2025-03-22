@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React-LLM-UI Development Mode</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    #root {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .dev-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .module-toggles {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background-color: #0070f3;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #0051bb;
+    }
+    .inactive {
+      background-color: #6c757d;
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      color: #666;
+    }
+  </style>
+  
+  <!-- React dependencies -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Add import maps support for ESM modules -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18",
+        "react-dom": "https://esm.sh/react-dom@18",
+        "react-dom/client": "https://esm.sh/react-dom@18/client"
+      }
+    }
+  </script>
+  
+  <!-- Main library (for development environment) -->
+  <script src="../../dist/index.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    // Import directly from the built files
+    // Access compiled library components
+    const {
+      ModuleProvider,
+      registerDefaultModules,
+      DefaultModules,
+      useModuleVisibility
+    } = window.ReactCopilot?.components?.uiModules || window.ReactLlmUi?.components?.uiModules || {};
+    
+    // Fallback if components aren't available via the global variable
+    if (!ModuleProvider) {
+      document.getElementById('root').innerHTML = `
+        <div style="padding: 20px; color: red; font-family: sans-serif;">
+          <h2>Error: UI Modules not found</h2>
+          <p>Unable to access the UI modules. Please make sure the library is built correctly.</p>
+          <p>Try running <code>npm run build</code> first, then restart the dev server.</p>
+        </div>
+      `;
+      throw new Error('UI Modules not available. Make sure the library is built correctly.');
+    }
+    
+    // Register all default modules
+    registerDefaultModules();
+    
+    // Module toggle component
+    const ModuleToggles = () => {
+      const { visibilityState, toggleModule } = useModuleVisibility();
+      
+      return (
+        <div className="module-toggles">
+          <h3>Available Modules</h3>
+          <p>Toggle modules to test their functionality:</p>
+          
+          {DefaultModules.map(module => (
+            <button 
+              key={module.id}
+              onClick={() => toggleModule(module.id)}
+              className={visibilityState[module.id] ? '' : 'inactive'}
+            >
+              {module.name}: {visibilityState[module.id] ? 'ON' : 'OFF'}
+            </button>
+          ))}
+          
+          <p style={{ fontSize: '0.8em', marginTop: '15px' }}>
+            You can also use the control panel in the corner to toggle modules.
+          </p>
+        </div>
+      );
+    };
+    
+    // Dev App Component
+    const DevApp = () => {
+      // Initialize all modules as visible for development
+      const initialVisibility = DefaultModules.reduce((acc, module) => {
+        acc[module.id] = true;
+        return acc;
+      }, {});
+    
+      return (
+        <ModuleProvider
+          defaultVisibility={initialVisibility}
+          enableControlPanel={true}
+          controlPanelPosition="top-right"
+        >
+          <div className="dev-container">
+            <h1>React-LLM-UI Development Mode</h1>
+            <p>
+              This is a development environment for testing UI modules in isolation.
+              Use the toggles below or the control panel to show/hide different modules.
+            </p>
+            
+            <ModuleToggles />
+            
+            <div style={{ marginTop: '30px' }}>
+              <h3>How to Use</h3>
+              <p>
+                Interact with the visible modules to test their functionality.
+                This environment allows you to focus on module development without
+                the complexity of a full application.
+              </p>
+            </div>
+          </div>
+        </ModuleProvider>
+      );
+    };
+    
+    // Render the app
+    const container = document.getElementById('root');
+    ReactDOM.createRoot(container).render(<DevApp />);
+  </script>
+</body>
+</html>

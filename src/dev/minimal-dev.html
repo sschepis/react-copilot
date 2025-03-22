@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React-LLM-UI Minimal Dev Mode</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    #root {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .dev-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      color: #666;
+    }
+  </style>
+  
+  <!-- React dependencies -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root">
+    <div class="dev-container">
+      <h1>React-LLM-UI Development Mode</h1>
+      <p>This is a minimal development environment for testing the UI modules system.</p>
+      <p>To use the full development environment, you'll need to build the library first with <code>npm run build</code>.</p>
+      
+      <h2>Getting Started</h2>
+      <p>Follow these steps to set up the dev environment:</p>
+      <ol>
+        <li>Create a new React application or use an existing one</li>
+        <li>Import the ModuleProvider and desired modules</li>
+        <li>Register the modules and wrap your application with ModuleProvider</li>
+      </ol>
+      
+      <h2>Example Usage</h2>
+      <pre><code>
+import React from 'react';
+import { 
+  ModuleProvider, 
+  registerDefaultModules,
+  ChatOverlayModule,
+  DebugPanelModule
+} from 'react-llm-ui';
+
+// Register default modules
+registerDefaultModules();
+
+const App = () => {
+  return (
+    &lt;ModuleProvider
+      defaultVisibility={{
+        [ChatOverlayModule.id]: true,
+        [DebugPanelModule.id]: false
+      }}
+      enableControlPanel={true}
+      controlPanelPosition="top-right"
+    &gt;
+      &lt;YourApplication /&gt;
+    &lt;/ModuleProvider&gt;
+  );
+};
+      </code></pre>
+      
+      <h2>Quick Integration</h2>
+      <p>Add this module to any existing React application:</p>
+      <ol>
+        <li>Install the package: <code>npm install @sschepis/react-copilot</code></li>
+        <li>Add the provider to your app: <code>import { ModuleProvider, registerDefaultModules } from '@sschepis/react-copilot'</code></li>
+        <li>Register modules and wrap your app with ModuleProvider</li>
+      </ol>
+      
+      <p>For a more detailed setup, check the <a href="../../docs/modular-ui-system.md">documentation</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

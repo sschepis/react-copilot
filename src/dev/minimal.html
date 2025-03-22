@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React-LLM-UI Development Mode</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    #root {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .dev-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .module-toggles {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background-color: #0070f3;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #0051bb;
+    }
+    .inactive {
+      background-color: #6c757d;
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      color: #666;
+    }
+    .overlay-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .control-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Load React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  
+  <!-- UI for the development page -->
+  <div class="dev-container">
+    <h1>React-LLM-UI Development Mode</h1>
+    <p>This is a simple development environment to view the UI modules without building the entire library.</p>
+    
+    <div class="module-toggles">
+      <h3>Modules View</h3>
+      <p>The following modules are simulated here:</p>
+      <ul>
+        <li><strong>Chat Overlay</strong> - A basic chat interface for LLM interactions</li>
+        <li><strong>Debug Panel</strong> - Tools for debugging and component inspection</li>
+        <li><strong>UI Control Panel</strong> - Controls for toggling module visibility</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Chat Overlay Simulation -->
+  <div class="overlay-container" style="top: 80px; right: 20px;">
+    <h3>Chat Overlay</h3>
+    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 200px; overflow-y: auto; margin-bottom: 10px;">
+      <div style="margin-bottom: 10px;">
+        <strong>User:</strong> Hello, how can I use the UI modules?
+      </div>
+      <div style="margin-bottom: 10px;">
+        <strong>Assistant:</strong> You can import the ModuleProvider and wrap your application with it. Then register any modules you want to use.
+      </div>
+    </div>
+    <div style="display: flex;">
+      <input type="text" placeholder="Type a message..." style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-right: 5px;">
+      <button>Send</button>
+    </div>
+  </div>
+
+  <!-- Control Panel Simulation -->
+  <div class="control-panel">
+    <h4 style="margin-top: 0;">UI Modules</h4>
+    <div>
+      <label style="display: block; margin-bottom: 8px;">
+        <input type="checkbox" checked> Chat Overlay
+      </label>
+      <label style="display: block; margin-bottom: 8px;">
+        <input type="checkbox"> Debug Panel
+      </label>
+      <label style="display: block;">
+        <input type="checkbox"> Multi-modal Chat
+      </label>
+    </div>
+  </div>
+
+  <!-- Debug Panel Simulation (initially hidden) -->
+  <div class="overlay-container" style="top: 80px; left: 20px; display: none;">
+    <h3>Debug Panel</h3>
+    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 200px; overflow-y: auto;">
+      <h4>Component Tree</h4>
+      <ul style="padding-left: 20px;">
+        <li>App</li>
+        <li>ModuleProvider
+          <ul>
+            <li>ChatOverlay</li>
+            <li>DebugPanel</li>
+            <li>UIControlPanel</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Simple toggle functionality for the checkboxes
+    document.querySelectorAll('.control-panel input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const label = this.parentNode.textContent.trim();
+        if (label === 'Debug Panel') {
+          const debugPanel = document.querySelector('.overlay-container[style*="left: 20px"]');
+          debugPanel.style.display = this.checked ? 'block' : 'none';
+        }
+        if (label === 'Chat Overlay') {
+          const chatOverlay = document.querySelector('.overlay-container[style*="top: 80px; right: 20px"]');
+          chatOverlay.style.display = this.checked ? 'block' : 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import { OpenAIProvider } from './OpenAIProvider';
 import { AnthropicProvider } from './AnthropicProvider';
 import { DeepSeekProvider } from './DeepSeekProvider';
+import { LMStudioProvider } from './LMStudioProvider';
 import { LLMProviderAdapter } from '../LLMProviderAdapter';
 
 /**
@@ -10,6 +11,7 @@ export const providers: Record<string, new () => LLMProviderAdapter> = {
   openai: OpenAIProvider,
   anthropic: AnthropicProvider,
   deepseek: DeepSeekProvider,
+  lmstudio: LMStudioProvider,
 };
 
 /**
@@ -27,4 +29,4 @@ export function createProvider(providerId: string): LLMProviderAdapter {
   return new ProviderClass();
 }
 
-export { OpenAIProvider, AnthropicProvider, DeepSeekProvider };
+export { OpenAIProvider, AnthropicProvider, DeepSeekProvider, LMStudioProvider };

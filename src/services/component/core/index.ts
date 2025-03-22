@@ -1,6 +1,6 @@
 /**
  * Component Registry Core Module
- * 
+ *
  * This module provides the core functionality for managing modifiable components
  * through a consistent interface. It handles component storage, version history,
  * relationship tracking, and code validation.
@@ -15,6 +15,12 @@ export { default as VersionManager } from './VersionManager';
 export { default as RelationshipManager } from './RelationshipManager';
 export { default as RegistryValidator } from './RegistryValidator';
 export { default as ComponentRegistry } from './ComponentRegistry';
+
+// Export new manager classes
+export { default as ComponentLifecycleManager, ComponentLifecycleHook } from './ComponentLifecycleManager';
+export { default as ComponentTransformManager } from './ComponentTransformManager';
+export { default as ComponentMetadataManager } from './ComponentMetadataManager';
+export { default as ComponentDiscoveryManager } from './ComponentDiscoveryManager';
 
 // Create and export factory function
 import ComponentStorage from './ComponentStorage';

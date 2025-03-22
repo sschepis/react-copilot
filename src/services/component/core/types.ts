@@ -27,6 +27,19 @@ export enum ComponentRegistryEvents {
  * Default permissions when none are provided
  */
 export const DEFAULT_PERMISSIONS: Permissions = {
+  // Required properties from Permissions interface
+  allowCodeExecution: false,
+  allowFilesystemAccess: false,
+  allowNetworkAccess: false,
+  allowStateModification: true,
+  allowExternalLibraries: false,
+  maxTokensPerRequest: 4096,
+  restrictedPaths: [],
+  restrictedModules: [],
+  allowedDomains: [],
+  allowEditing: true,
+  
+  // Legacy properties
   allowComponentCreation: true,
   allowComponentDeletion: false,
   allowStyleChanges: true,
@@ -112,9 +125,9 @@ export interface IVersionManager {
    * Create a new version
    */
   createVersion(
-    componentId: string, 
-    sourceCode: string, 
-    description: string, 
+    componentId: string,
+    sourceCode: string,
+    description: string,
     options?: VersionCreationOptions
   ): ComponentVersion | null;
   
@@ -127,10 +140,15 @@ export interface IVersionManager {
    * Revert to a specific version
    */
   revertToVersion(
-    componentId: string, 
-    versionId: string, 
+    componentId: string,
+    versionId: string,
     options?: VersionRevertOptions
   ): boolean;
+  
+  /**
+   * Get a specific version by ID
+   */
+  getVersion?(componentId: string, versionId: string): ComponentVersion | null;
 }
 
 /**

@@ -1,4 +1,6 @@
 import { CodeToDocument, CodeType, IDocumentationGenerator } from './types';
+import { MarkdownDocumentationGenerator } from './generators/MarkdownDocumentationGenerator';
+import { ReactComponentGenerator } from './generators/ReactComponentGenerator';
 
 /**
  * Factory for creating appropriate documentation generators
@@ -15,13 +17,11 @@ export class DocumentationGeneratorFactory {
     if (this.generators.size > 0) return; // Already initialized
     
     // Register default generators
-    // Will be added when they are implemented
-    // this.registerGenerator(new ReactComponentDocumentationGenerator());
-    // this.registerGenerator(new FunctionDocumentationGenerator());
+    this.registerGenerator(new MarkdownDocumentationGenerator());
+    this.registerGenerator(new ReactComponentGenerator());
     
     // Set default generator
-    // Will be set when a default generator is implemented
-    // this.defaultGenerator = this.generators.get('FunctionDocumentationGenerator') || null;
+    this.defaultGenerator = this.generators.get('MarkdownDocumentationGenerator') || null;
   }
   
   /**

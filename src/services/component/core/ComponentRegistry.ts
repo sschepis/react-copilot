@@ -1,16 +1,8 @@
 import { EventEmitter } from '../../../utils/EventEmitter';
-import {
-  IComponentRegistry,
-  IComponentStorage,
-  IVersionManager,
-  IRelationshipManager,
-  IRegistryValidator,
-  ComponentRegistryEvents,
-  ComponentRegistrationOptions,
-  VersionCreationOptions,
-  VersionRevertOptions,
-  CodeChangeOptions
-} from './types';
+import { eventBus } from '../../../utils/EventBus';
+import { CommonEvents } from '../../../utils/CommonEvents';
+import { logger, LogCategory } from '../../../utils/LoggingSystem';
+import { errorHandling, ErrorCategory, ErrorSeverity } from '../../../utils/ErrorHandling';
 import {
   CodeChangeRequest,
   CodeChangeResult,
@@ -20,528 +12,796 @@ import {
   ModifiableComponent,
   Permissions
 } from '../../../utils/types';
-import { executeCodeChange } from '../../codeExecution';
+import { ComponentRegistryEvents, DEFAULT_PERMISSIONS } from './types';
+import { IComponentStorage } from './types';
+import { IVersionManager } from './types';
+import { IRelationshipManager } from './types';
+import { IRegistryValidator } from './types';
+import { ComponentTransformManager } from './ComponentTransformManager';
+import { ComponentLifecycleManager, ComponentLifecycleHook } from './ComponentLifecycleManager';
+import { ComponentMetadataManager } from './ComponentMetadataManager';
+import { ComponentDiscoveryManager, ComponentDiscoveryOptions, ComponentDiscoveryResult } from './ComponentDiscoveryManager';
 
 /**
- * Enhanced Component Registry with relationship tracking and version history
- * This is the orchestration layer that coordinates all component services
+ * Component registry with advanced features
  */
-export class ComponentRegistry extends EventEmitter implements IComponentRegistry {
-  private componentStorage: IComponentStorage;
-  private versionManager: IVersionManager;
-  private relationshipManager: IRelationshipManager;
-  private validator: IRegistryValidator;
-
+export class ComponentRegistry extends EventEmitter {
+  private components: Map<string, ModifiableComponent> = new Map();
+  private transformManager: ComponentTransformManager;
+  private lifecycleManager: ComponentLifecycleManager;
+  private metadataManager: ComponentMetadataManager;
+  private discoveryManager: ComponentDiscoveryManager;
+  private permissions: Permissions;
+  private log = logger.getChildLogger(LogCategory.COMPONENT);
+  
   /**
    * Create a new ComponentRegistry
-   * 
-   * @param componentStorage Storage for component data
-   * @param versionManager Version history management
-   * @param relationshipManager Relationship tracking
-   * @param validator Code and component validation
+   * @param storage Component storage service
+   * @param versionManager Version management service
+   * @param relationshipManager Relationship management service
+   * @param validator Registry validation service
+   * @param permissions Optional permissions configuration
    */
   constructor(
-    componentStorage: IComponentStorage,
-    versionManager: IVersionManager,
-    relationshipManager: IRelationshipManager,
-    validator: IRegistryValidator
+    private storage: IComponentStorage,
+    private versionManager: IVersionManager,
+    private relationshipManager: IRelationshipManager,
+    private validator: IRegistryValidator,
+    permissions?: Partial<Permissions>
   ) {
     super();
-    this.componentStorage = componentStorage;
-    this.versionManager = versionManager;
-    this.relationshipManager = relationshipManager;
-    this.validator = validator;
+    this.permissions = { ...DEFAULT_PERMISSIONS, ...permissions };
+    this.transformManager = new ComponentTransformManager();
+    this.lifecycleManager = new ComponentLifecycleManager();
+    this.metadataManager = new ComponentMetadataManager();
+    this.discoveryManager = new ComponentDiscoveryManager();
+    
+    // Add default transforms
+    this.addDefaultTransforms();
   }
-
+  
+  /**
+   * Add default component transforms
+   */
+  private addDefaultTransforms(): void {
+    // Add metadata extraction transform
+    this.transformManager.registerTransform({
+      name: 'metadata-extractor',
+      priority: 100,
+      beforeRegister: async (component) => {
+        // Update metadata before registration
+        this.metadataManager.updateComponentMetadata(component);
+        return component;
+      },
+      afterRegister: async (component) => {
+        // Update metadata after registration
+        this.metadataManager.updateComponentMetadata(component);
+      },
+      afterUpdate: async (component) => {
+        // Update metadata after component update
+        this.metadataManager.updateComponentMetadata(component);
+      }
+    });
+    
+    // Add relationship detection transform
+    this.transformManager.registerTransform({
+      name: 'relationship-detector',
+      priority: 90,
+      afterRegister: async (component) => {
+        // Add component to relationship manager
+        this.relationshipManager.addComponent(component);
+        
+        // Detect relationships with other components
+        this.detectRelationships(component);
+      },
+      afterUpdate: async (component) => {
+        // Re-detect relationships after update
+        this.detectRelationships(component);
+      }
+    });
+  }
+  
+  /**
+   * Detect relationships between this component and others
+   * @param component The component to detect relationships for
+   */
+  private detectRelationships(component: ModifiableComponent): void {
+    const metadata = this.metadataManager.getComponentMetadata(component.id);
+    if (!metadata) return;
+    
+    const sourceCode = component.sourceCode;
+    if (!sourceCode) return;
+    
+    // Find explicit component references
+    for (const [otherComponentId, otherComponent] of this.components.entries()) {
+      if (otherComponentId === component.id) continue;
+      
+      // Check if this component references the other component
+      const reference = new RegExp(`<\\s*${otherComponent.name}\\s*[\\/>]|<\\s*${otherComponent.name}\\s+`);
+      
+      if (reference.test(sourceCode)) {
+        // Add dependency relationship
+        this.relationshipManager.addDependency(component.id, otherComponentId);
+      }
+    }
+  }
+  
   /**
    * Register a component with the registry
-   * 
    * @param component The component to register
-   * @param options Optional registration options
    */
-  registerComponent(
-    component: ModifiableComponent,
-    options?: ComponentRegistrationOptions
-  ): void {
-    // Default options
-    const defaultOptions: ComponentRegistrationOptions = {
-      createInitialVersion: true,
-      updateRelationships: true
-    };
-    const effectiveOptions = { ...defaultOptions, ...options };
-
-    // Validate component
-    if (!this.validator.validateComponent(component)) {
-      throw new Error(`Component validation failed for ${component.id}`);
-    }
-
-    // Check if component already exists
-    if (this.componentStorage.hasComponent(component.id)) {
-      // Just update it if it exists
-      this.updateComponent(component.id, component);
+  async registerComponent(component: ModifiableComponent): Promise<void> {
+    if (this.components.has(component.id)) {
+      this.log.warn(`Component with ID ${component.id} already registered, updating instead`);
+      await this.updateComponent(component.id, component);
       return;
     }
-
-    // Store the component
-    this.componentStorage.storeComponent(component);
     
-    // Add to relationship graph if requested
-    if (effectiveOptions.updateRelationships) {
-      this.relationshipManager.addComponent(component);
+    try {
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_REGISTER, component);
       
-      // Update relationships based on component path if available
-      if (component.path && component.path.length > 1) {
-        // Last element is the component itself, so get the parent from the path
-        const parentPath = component.path.slice(0, -1);
-        
-        // Find the parent component by path
-        const allComponents = this.componentStorage.getAllComponents();
-        for (const [id, comp] of Object.entries(allComponents)) {
-          if (comp.path && 
-              comp.path.length === parentPath.length && 
-              comp.path.every((item, index) => item === parentPath[index])) {
-            
-            // Set parent-child relationship
-            this.relationshipManager.setParentChild(id, component.id);
-            break;
-          }
-        }
+      // Apply transforms
+      let processedComponent = await this.transformManager.applyBeforeRegisterTransforms(component);
+      
+      // Add the component
+      this.components.set(processedComponent.id, processedComponent);
+      this.storage.storeComponent(processedComponent);
+      
+      // Create initial version
+      if (processedComponent.sourceCode) {
+        this.versionManager.createVersion(
+          processedComponent.id,
+          processedComponent.sourceCode,
+          'Initial version',
+          { author: processedComponent.metadata?.author as string | undefined }
+        );
       }
       
-      // Track dependencies if available
-      if (component.dependencies) {
-        const allComponents = this.componentStorage.getAllComponents();
-        for (const [id, comp] of Object.entries(allComponents)) {
-          if (comp.name && component.dependencies.includes(comp.name)) {
-            this.relationshipManager.addDependency(component.id, id);
-          }
+      // Run post-registration transforms
+      await this.transformManager.applyAfterRegisterTransforms(processedComponent);
+      
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.AFTER_REGISTER, processedComponent);
+      
+      this.log.info(`Component registered: ${processedComponent.name} (${processedComponent.id})`);
+      
+      // Emit event
+      this.emit(ComponentRegistryEvents.COMPONENT_REGISTERED, { component: processedComponent });
+      eventBus.publish(CommonEvents.COMPONENT_REGISTERED, { component: processedComponent });
+      
+    } catch (error) {
+      this.log.error(`Failed to register component: ${component.name}`, error);
+      errorHandling.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.ERROR,
+        ErrorCategory.COMPONENT,
+        {
+          message: `Failed to register component: ${component.name}`,
+          componentId: component.id
         }
-      }
+      );
+      throw error;
     }
-    
-    // Initialize version history if component has source code and option is enabled
-    if (effectiveOptions.createInitialVersion && component.sourceCode) {
-      this.createVersion(component.id, component.sourceCode, 'Initial version');
-    }
-
-    // Emit registration event
-    this.emit(ComponentRegistryEvents.COMPONENT_REGISTERED, { componentId: component.id });
   }
-
+  
   /**
    * Unregister a component from the registry
-   * 
    * @param componentId The ID of the component to unregister
    */
-  unregisterComponent(componentId: string): void {
-    if (!this.componentStorage.hasComponent(componentId)) {
+  async unregisterComponent(componentId: string): Promise<void> {
+    const component = this.components.get(componentId);
+    if (!component) {
+      this.log.warn(`Cannot unregister component with ID ${componentId} - not found`);
       return;
     }
-
-    // Remove from relationship manager
-    this.relationshipManager.removeComponent(componentId);
     
-    // Remove from storage
-    this.componentStorage.removeComponent(componentId);
-
-    // Emit unregistration event
-    this.emit(ComponentRegistryEvents.COMPONENT_UNREGISTERED, { componentId });
+    try {
+      // Run lifecycle hooks
+      const shouldProceed = await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_UNREGISTER, component);
+      if (shouldProceed === false) {
+        this.log.info(`Unregistration of component ${componentId} was cancelled by a lifecycle hook`);
+        return;
+      }
+      
+      // Run pre-unregister transforms
+      const canProceed = await this.transformManager.applyBeforeUnregisterTransforms(component);
+      if (canProceed === false) {
+        this.log.info(`Unregistration of component ${componentId} was cancelled by a transform`);
+        return;
+      }
+      
+      // Remove from components map
+      this.components.delete(componentId);
+      this.storage.removeComponent(componentId);
+      
+      // Remove from metadata
+      this.metadataManager.removeComponentMetadata(componentId);
+      
+      // Remove from relationship graph
+      this.relationshipManager.removeComponent(componentId);
+      
+      this.log.info(`Component unregistered: ${component.name} (${componentId})`);
+      
+      // Emit event
+      this.emit(ComponentRegistryEvents.COMPONENT_UNREGISTERED, { 
+        componentId,
+        componentName: component.name
+      });
+      eventBus.publish(CommonEvents.COMPONENT_UNREGISTERED, { 
+        componentId,
+        componentName: component.name
+      });
+      
+    } catch (error) {
+      this.log.error(`Failed to unregister component: ${componentId}`, error);
+      errorHandling.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.ERROR,
+        ErrorCategory.COMPONENT,
+        {
+          message: `Failed to unregister component: ${componentId}`,
+          componentId
+        }
+      );
+      throw error;
+    }
   }
-
+  
   /**
    * Update a component in the registry
-   * 
    * @param componentId The ID of the component to update
    * @param updates Partial component updates to apply
    */
-  updateComponent(componentId: string, updates: Partial<ModifiableComponent>): void {
-    const currentComponent = this.componentStorage.getComponent(componentId);
-    if (!currentComponent) {
-      throw new Error(`Component with ID ${componentId} not found`);
+  async updateComponent(
+    componentId: string, 
+    updates: Partial<ModifiableComponent>
+  ): Promise<void> {
+    const component = this.components.get(componentId);
+    if (!component) {
+      throw new Error(`Cannot update component with ID ${componentId} - not found`);
     }
-
-    // Check if source code is being updated
-    const sourceCodeUpdated = updates.sourceCode !== undefined && 
-                              updates.sourceCode !== currentComponent.sourceCode;
-
-    // Update in storage
-    this.componentStorage.updateComponent(componentId, updates);
-
-    // If relationships are updated, update the relationship manager
-    if (updates.relationships) {
-      // Get the latest component data
-      const updatedComponent = this.componentStorage.getComponent(componentId);
-      if (updatedComponent) {
-        this.relationshipManager.addComponent(updatedComponent);
+    
+    try {
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_UPDATE, component, { updates });
+      
+      // Apply transforms to updates
+      const processedUpdates = await this.transformManager.applyBeforeUpdateTransforms(component, updates);
+      
+      // Create new component by merging existing with updates
+      const updatedComponent: ModifiableComponent = {
+        ...component,
+        ...processedUpdates
+      };
+      
+      // Update the component
+      this.components.set(componentId, updatedComponent);
+      this.storage.updateComponent(componentId, updatedComponent);
+      
+      // Create a new version if source code changed
+      if (processedUpdates.sourceCode && processedUpdates.sourceCode !== component.sourceCode) {
+        await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_VERSION_CREATE, updatedComponent);
+        
+        // Store description in a local variable
+        const versionDesc = processedUpdates.metadata?.versionDescription || 'Update component';
+        const author = processedUpdates.metadata?.author || undefined;
+        
+        const version = this.versionManager.createVersion(
+          componentId,
+          processedUpdates.sourceCode,
+          versionDesc,
+          author
+        );
+        
+        await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.AFTER_VERSION_CREATE, updatedComponent, { version });
       }
+      
+      // Run post-update transforms
+      await this.transformManager.applyAfterUpdateTransforms(updatedComponent);
+      
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.AFTER_UPDATE, updatedComponent);
+      
+      this.log.info(`Component updated: ${updatedComponent.name} (${componentId})`);
+      
+      // Emit event
+      this.emit(ComponentRegistryEvents.COMPONENT_UPDATED, { 
+        component: updatedComponent,
+        previousComponent: component
+      });
+      eventBus.publish(CommonEvents.COMPONENT_UPDATED, {
+        componentId,
+        componentName: updatedComponent.name
+      });
+      
+    } catch (error) {
+      this.log.error(`Failed to update component: ${componentId}`, error);
+      errorHandling.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.ERROR,
+        ErrorCategory.COMPONENT,
+        {
+          message: `Failed to update component: ${componentId}`,
+          componentId
+        }
+      );
+      throw error;
     }
-
-    // If source code was updated, create a new version
-    if (sourceCodeUpdated && updates.sourceCode) {
-      this.createVersion(componentId, updates.sourceCode, 'Updated via updateComponent');
-    }
-
-    // Emit update event
-    this.emit(ComponentRegistryEvents.COMPONENT_UPDATED, { 
-      componentId,
-      updates
-    });
   }
-
-  /**
-   * Set permissions for code validation
-   * 
-   * @param permissions The permissions to set
-   */
-  setPermissions(permissions: Partial<Permissions>): void {
-    this.validator.setPermissions(permissions);
-  }
-
-  /**
-   * Get the current permissions
-   * 
-   * @returns The current permissions
-   */
-  getPermissions(): Permissions {
-    return this.validator.getPermissions();
-  }
-
+  
   /**
    * Get a component by ID
-   * 
    * @param componentId The ID of the component to get
-   * @returns The component or null if not found
    */
   getComponent(componentId: string): ModifiableComponent | null {
-    return this.componentStorage.getComponent(componentId);
+    return this.components.get(componentId) || this.storage.getComponent(componentId);
   }
-
+  
+  /**
+   * Get component metadata
+   * @param componentId The ID of the component
+   */
+  getComponentMetadata(componentId: string): any {
+    return this.metadataManager.getComponentMetadata(componentId);
+  }
+  
   /**
    * Get all registered components
-   * 
-   * @returns A record of all components by ID
    */
   getAllComponents(): Record<string, ModifiableComponent> {
-    return this.componentStorage.getAllComponents();
+    const result: Record<string, ModifiableComponent> = {};
+    for (const [id, component] of this.components.entries()) {
+      result[id] = component;
+    }
+    return result;
   }
-
+  
+  /**
+   * Get all component metadata
+   */
+  getAllComponentMetadata(): Record<string, any> {
+    return this.metadataManager.getAllComponentMetadata();
+  }
+  
   /**
    * Create a new version of a component
-   * 
    * @param componentId The ID of the component
    * @param sourceCode The source code for the new version
    * @param description A description of the changes
-   * @param options Optional settings for version creation
-   * @returns The newly created version or null if component not found
+   * @param author Optional author of the changes
    */
-  createVersion(
-    componentId: string, 
-    sourceCode: string, 
-    description: string, 
-    options?: VersionCreationOptions
-  ): ComponentVersion | null {
-    // Default options
-    const defaultOptions: VersionCreationOptions = {
-      emitEvent: true
-    };
-    const effectiveOptions = { ...defaultOptions, ...options };
-
-    const version = this.versionManager.createVersion(
-      componentId,
-      sourceCode,
-      description,
-      options
-    );
-
-    if (version && effectiveOptions.emitEvent) {
-      // Emit version creation event
+  async createVersion(
+    componentId: string,
+    sourceCode: string,
+    description: string,
+    author?: string
+  ): Promise<ComponentVersion | null> {
+    const component = this.components.get(componentId);
+    if (!component) {
+      throw new Error(`Cannot create version for component with ID ${componentId} - not found`);
+    }
+    
+    try {
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_VERSION_CREATE, component, {
+        sourceCode,
+        description,
+        author
+      });
+      
+      // Create version
+      const version = this.versionManager.createVersion(
+        componentId,
+        sourceCode,
+        description,
+        { author }
+      );
+      
+      // Update component with new source code
+      await this.updateComponent(componentId, { sourceCode });
+      
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.AFTER_VERSION_CREATE, component, { version });
+      
+      // Emit event
       this.emit(ComponentRegistryEvents.COMPONENT_VERSION_CREATED, {
         componentId,
-        versionId: version.id
+        componentName: component.name,
+        version
       });
+      eventBus.publish(CommonEvents.COMPONENT_VERSION_CREATED, {
+        componentId,
+        versionId: version?.id
+      });
+      
+      return version;
+    } catch (error) {
+      this.log.error(`Failed to create version for component: ${componentId}`, error);
+      errorHandling.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.ERROR,
+        ErrorCategory.COMPONENT,
+        {
+          message: `Failed to create version for component: ${componentId}`,
+          componentId
+        }
+      );
+      throw error;
     }
-
-    return version;
   }
-
+  
   /**
    * Get version history for a component
-   * 
    * @param componentId The ID of the component
-   * @returns Array of versions or empty array if component not found
    */
   getVersionHistory(componentId: string): ComponentVersion[] {
     return this.versionManager.getVersionHistory(componentId);
   }
-
+  
   /**
-   * Revert a component to a specific version
-   * 
+   * Revert to a specific version
    * @param componentId The ID of the component
    * @param versionId The ID of the version to revert to
-   * @param options Optional settings for reversion
-   * @returns True if revert was successful
    */
-  revertToVersion(
-    componentId: string, 
-    versionId: string, 
-    options?: VersionRevertOptions
-  ): boolean {
-    // Default options
-    const defaultOptions: VersionRevertOptions = {
-      emitEvent: true,
-      createNewVersion: true
-    };
-    const effectiveOptions = { ...defaultOptions, ...options };
-
-    const success = this.versionManager.revertToVersion(
-      componentId,
-      versionId,
-      options
-    );
-
-    if (success && effectiveOptions.emitEvent) {
-      // Emit version revert event
-      this.emit(ComponentRegistryEvents.COMPONENT_VERSION_REVERTED, {
-        componentId,
-        versionId
-      });
+  async revertToVersion(componentId: string, versionId: string): Promise<boolean> {
+    const component = this.components.get(componentId);
+    if (!component) {
+      throw new Error(`Cannot revert component with ID ${componentId} - not found`);
     }
-
-    return success;
-  }
-
-  /**
-   * Execute a code change request for a single component
-   * 
-   * @param request The code change request
-   * @param options Optional settings for the code change
-   * @returns The result of the code change
-   */
-  async executeCodeChange(
-    request: CodeChangeRequest,
-    options?: CodeChangeOptions
-  ): Promise<CodeChangeResult> {
+    
     try {
-      // Default options
-      const defaultOptions: CodeChangeOptions = {
-        createVersion: true,
-        updateComponent: true,
-        validateCode: true
-      };
-      const effectiveOptions = { ...defaultOptions, ...options };
-
-      // Get the target component
-      const component = this.getComponent(request.componentId);
-      if (!component) {
-        return {
-          success: false,
-          error: `Component with ID ${request.componentId} not found`,
-          componentId: request.componentId
-        };
-      }
-
-      // Validate the code change if requested
-      if (effectiveOptions.validateCode) {
-        const validationResult = this.validator.validateCodeChange(
-          request.sourceCode, 
-          component.sourceCode || ''
-        );
-
-        if (!validationResult.isValid) {
-          return {
-            success: false,
-            error: validationResult.error || 'Code validation failed',
-            componentId: request.componentId
-          };
-        }
-      }
-
-      // Execute the code change
-      const result = await executeCodeChange(request);
-
-      if (result.success && result.newSourceCode) {
-        // Create a new version if requested
-        if (effectiveOptions.createVersion) {
-          this.createVersion(
-            request.componentId,
-            result.newSourceCode,
-            request.description || 'Code updated'
-          );
-        }
-
-        // Update the component's source code if requested
-        if (effectiveOptions.updateComponent) {
-          this.updateComponent(request.componentId, {
-            sourceCode: result.newSourceCode
+      // Try to revert to the specified version
+      const success = this.versionManager.revertToVersion(componentId, versionId, {
+        createNewVersion: false // Don't create a new version yet, we'll handle that manually
+      });
+      
+      if (success) {
+        // The revert was successful, so update the component metadata
+        // Get the latest version of the component after reversion
+        const updatedComponent = this.getComponent(componentId);
+        
+        if (updatedComponent && updatedComponent.sourceCode) {
+          // Update component metadata
+          await this.updateComponent(componentId, {
+            metadata: { versionDescription: `Reverted to version: ${versionId}` }
+          });
+          
+          // Emit event
+          this.emit(ComponentRegistryEvents.COMPONENT_VERSION_REVERTED, {
+            componentId,
+            componentName: component.name,
+            versionId
+          });
+          eventBus.publish(CommonEvents.COMPONENT_VERSION_REVERTED, {
+            componentId,
+            versionId
           });
         }
-
-        // Emit code change applied event
-        this.emit(ComponentRegistryEvents.CODE_CHANGE_APPLIED, {
-          componentId: request.componentId,
-          description: request.description
-        });
-      } else {
-        // Emit code change failed event
-        this.emit(ComponentRegistryEvents.CODE_CHANGE_FAILED, {
-          componentId: request.componentId,
-          error: result.error
-        });
       }
-
-      return result;
+      return success;
     } catch (error) {
-      // Handle errors
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.log.error(`Failed to revert component: ${componentId} to version: ${versionId}`, error);
+      errorHandling.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.ERROR,
+        ErrorCategory.COMPONENT,
+        {
+          message: `Failed to revert component: ${componentId} to version: ${versionId}`,
+          componentId
+        }
+      );
+      throw error;
+    }
+  }
+  
+  /**
+   * Execute a code change for a component
+   * @param request The code change request
+   */
+  async executeCodeChange(request: CodeChangeRequest): Promise<CodeChangeResult> {
+    const { componentId, sourceCode: newCode, description } = request;
+    const component = this.components.get(componentId);
+    
+    if (!component) {
+      return {
+        success: false,
+        error: `Component with ID ${componentId} not found`,
+        componentId  // Add required property
+      };
+    }
+    
+    try {
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.BEFORE_CODE_CHANGE, component, { request });
       
-      // Emit error event
-      this.emit(ComponentRegistryEvents.ERROR, {
-        componentId: request.componentId,
+      // Use sourceCode or newCode property - CodeChangeRequest may have either
+      const sourceCode = newCode || request.sourceCode;
+      
+      if (!sourceCode) {
+        throw new Error('No source code provided in the request');
+      }
+      
+      // Create new version with the updated code
+      const version = await this.createVersion(
+        componentId,
+        sourceCode,
+        description || 'Code change',
+        component.metadata?.author as string | undefined
+      );
+      
+      // Update the component
+      await this.updateComponent(componentId, {
+        sourceCode,
+        metadata: {
+          ...(component.metadata || {}),
+          versionDescription: description
+        }
+      });
+      
+      // Run lifecycle hooks
+      await this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.AFTER_CODE_CHANGE, component, {
+        request,
+        version
+      });
+      
+      // Emit event
+      this.emit(ComponentRegistryEvents.CODE_CHANGE_APPLIED, {
+        componentId,
+        componentName: component.name,
+        sourceCode
+      });
+      eventBus.publish(CommonEvents.CODE_CHANGE_APPLIED, {
+        componentId,
+        componentName: component.name
+      });
+      
+      return {
+        success: true,
+        componentId,
+        versionId: version?.id
+      };
+    } catch (error) {
+      this.log.error(`Failed to execute code change for component: ${componentId}`, error);
+      
+      // Emit event
+      this.emit(ComponentRegistryEvents.CODE_CHANGE_FAILED, {
+        componentId,
+        componentName: component.name,
         error
+      });
+      eventBus.publish(CommonEvents.CODE_CHANGE_FAILED, {
+        componentId,
+        componentName: component.name,
+        error: error instanceof Error ? error.message : String(error)
       });
       
       return {
         success: false,
-        error: errorMessage,
-        componentId: request.componentId
+        error: error instanceof Error ? error.message : String(error),
+        componentId  // Add required property
       };
     }
   }
-
+  
   /**
-   * Execute a cross-component code change request affecting multiple components
-   * 
+   * Execute a cross-component code change
    * @param request The cross-component change request
-   * @param options Optional settings for the code change
-   * @returns Record of results by component ID
    */
   async executeMultiComponentChange(
-    request: CrossComponentChangeRequest,
-    options?: CodeChangeOptions
+    request: CrossComponentChangeRequest
   ): Promise<Record<string, CodeChangeResult>> {
     const results: Record<string, CodeChangeResult> = {};
-    const successfulChanges: string[] = [];
-
+    const { changes, description } = request;
+    
+    // Get all affected components
+    const affectedComponentIds = Object.keys(changes);
+    
     try {
-      // Validate that all components exist
-      for (const componentId of request.componentIds) {
-        if (!this.componentStorage.hasComponent(componentId)) {
-          return {
-            [componentId]: {
-              success: false,
-              error: `Component with ID ${componentId} not found`,
-              componentId
-            }
-          };
-        }
-      }
-
       // Execute changes for each component
-      for (const componentId of request.componentIds) {
-        const sourceCode = request.changes[componentId];
-        if (!sourceCode) continue;
-
-        const changeRequest: CodeChangeRequest = {
+      for (const componentId of affectedComponentIds) {
+        const sourceCode = changes[componentId];
+        
+        // Get the component for metadata reference
+        const component = this.components.get(componentId);
+        
+        const result = await this.executeCodeChange({
           componentId,
           sourceCode,
-          description: request.description
-        };
-
-        const result = await this.executeCodeChange(changeRequest, options);
-        results[componentId] = result;
-
-        if (result.success) {
-          successfulChanges.push(componentId);
-        } else {
-          // If any component fails, revert all successful changes
-          for (const id of successfulChanges) {
-            const versions = this.getVersionHistory(id);
-            if (versions.length > 1) {
-              // Revert to previous version (index 1 since newest is at index 0)
-              this.revertToVersion(id, versions[1].id);
-            }
+          newCode: sourceCode, // Include required newCode property
+          description: description || 'Multi-component change',
+          metadata: {
+            ...(component?.metadata || {}),
+            source: 'multi-component-change'
           }
-
-          // Return results with error
-          return results;
+        });
+        
+        results[componentId] = result;
+        
+        // If any change fails, stop processing
+        if (!result.success) {
+          break;
         }
       }
-
+      
       return results;
     } catch (error) {
-      // Handle errors and revert any successful changes
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error during multi-component change';
-
-      // Revert all successful changes
-      for (const id of successfulChanges) {
-        const versions = this.getVersionHistory(id);
-        if (versions.length > 1) {
-          this.revertToVersion(id, versions[1].id);
-        }
-      }
-
-      // Log error
-      console.error('Error executing multi-component change:', error);
-
-      // Emit error event
-      this.emit(ComponentRegistryEvents.ERROR, {
-        componentIds: request.componentIds,
-        error
-      });
-
-      // Return results with error for all components
-      for (const componentId of request.componentIds) {
+      this.log.error('Failed to execute multi-component change', error);
+      
+      // For any components not yet processed, add error result
+      for (const componentId of affectedComponentIds) {
         if (!results[componentId]) {
           results[componentId] = {
             success: false,
-            error: errorMessage,
+            error: 'Processing stopped due to earlier error',
             componentId
           };
         }
       }
-
+      
       return results;
     }
   }
-
+  
   /**
-   * Get component relationships from the relationship graph
-   * 
+   * Get a component's relationships
    * @param componentId The ID of the component
-   * @returns The component's relationships or null if not found
    */
   getComponentRelationships(componentId: string): ComponentRelationship | null {
     return this.relationshipManager.getRelationships(componentId);
   }
-
+  
   /**
    * Get all components that would be affected by changes to the specified components
-   * 
    * @param componentIds The IDs of the components that are changing
-   * @returns Array of component IDs that would be affected by the changes
    */
   getAffectedComponents(componentIds: string | string[]): string[] {
     return this.relationshipManager.getAffectedComponents(componentIds);
   }
-
+  
   /**
-   * Get all state keys that are related to a component
-   * 
+   * Get all state keys related to a component
    * @param componentId The ID of the component
-   * @returns Array of state keys used by the component or related components
    */
   getRelatedStateKeys(componentId: string): string[] {
     return this.relationshipManager.getRelatedStateKeys(componentId);
   }
-
+  
   /**
-   * Get a visualization of the component graph
-   * 
-   * @returns The visualization data
+   * Visualize the component graph
    */
   visualizeComponentGraph() {
     return this.relationshipManager.visualizeGraph();
+  }
+  
+  /**
+   * Set permissions for code validation
+   * @param permissions The permissions to set
+   */
+  setPermissions(permissions: Partial<Permissions>): void {
+    this.permissions = { ...this.permissions, ...permissions };
+    this.validator.setPermissions(this.permissions);
+  }
+  
+  /**
+   * Get current permissions
+   */
+  getPermissions(): Permissions {
+    return { ...this.permissions };
+  }
+  
+  /**
+   * Register a component transform
+   * @param transform The transform to register
+   */
+  registerTransform(transform: any): void {
+    this.transformManager.registerTransform(transform);
+  }
+  
+  /**
+   * Unregister a component transform
+   * @param name The name of the transform to unregister
+   */
+  unregisterTransform(name: string): boolean {
+    return this.transformManager.unregisterTransform(name);
+  }
+  
+  /**
+   * Get all registered transforms
+   */
+  getTransforms(): any[] {
+    return this.transformManager.getTransforms();
+  }
+  
+  /**
+   * Register a lifecycle hook
+   * @param hook The lifecycle hook to register for
+   * @param callback The callback function
+   */
+  registerLifecycleHook(hook: ComponentLifecycleHook, callback: any): void {
+    this.lifecycleManager.registerLifecycleHook(hook, callback);
+  }
+  
+  /**
+   * Unregister a lifecycle hook
+   * @param hook The lifecycle hook to unregister from
+   * @param callback The callback function to remove
+   */
+  unregisterLifecycleHook(hook: ComponentLifecycleHook, callback: any): boolean {
+    return this.lifecycleManager.unregisterLifecycleHook(hook, callback);
+  }
+  
+  /**
+   * Track a component render
+   * @param componentId The ID of the component
+   * @param renderTime Render duration in milliseconds
+   */
+  trackComponentRender(componentId: string, renderTime?: number): void {
+    this.metadataManager.trackComponentRender(componentId, renderTime);
+    
+    // Run render lifecycle hook
+    const component = this.components.get(componentId);
+    if (component) {
+      this.lifecycleManager.runLifecycleHook(ComponentLifecycleHook.RENDER, component, { renderTime });
+    }
+  }
+  
+  /**
+   * Add a tag to a component
+   * @param componentId The ID of the component
+   * @param tag The tag to add
+   */
+  addComponentTag(componentId: string, tag: string): boolean {
+    return this.metadataManager.addComponentTag(componentId, tag);
+  }
+  
+  /**
+   * Remove a tag from a component
+   * @param componentId The ID of the component
+   * @param tag The tag to remove
+   */
+  removeComponentTag(componentId: string, tag: string): boolean {
+    return this.metadataManager.removeComponentTag(componentId, tag);
+  }
+  
+  /**
+   * Find components by tags
+   * @param tags Tags to search for
+   * @param matchAll Whether to require all tags (AND) or any tag (OR)
+   */
+  findComponentsByTags(tags: string[], matchAll = true): ModifiableComponent[] {
+    return this.metadataManager.findComponentsByTags(tags, matchAll, this.components);
+  }
+  
+  /**
+   * Set component metadata value
+   * @param componentId The ID of the component
+   * @param key The key to set
+   * @param value The value to set
+   */
+  setComponentMetadataValue(componentId: string, key: string, value: any): boolean {
+    return this.metadataManager.setComponentMetadataValue(componentId, key, value);
+  }
+  
+  /**
+   * Get component metadata value
+   * @param componentId The ID of the component
+   * @param key The key to get
+   */
+  getComponentMetadataValue(componentId: string, key: string): any {
+    return this.metadataManager.getComponentMetadataValue(componentId, key);
+  }
+  
+  /**
+   * Discover components from source code
+   * @param sourceCode The source code to analyze
+   * @param options Discovery options
+   */
+  discoverComponentsFromSource(
+    sourceCode: string,
+    options: ComponentDiscoveryOptions = {}
+  ): ComponentDiscoveryResult {
+    return this.discoveryManager.discoverComponentsFromSource(sourceCode, options);
   }
 }
 

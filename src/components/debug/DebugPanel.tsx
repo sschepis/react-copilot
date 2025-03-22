@@ -4,6 +4,9 @@ import { ComponentTree } from './components/ComponentTree';
 import { PropsMonitor } from './components/PropsMonitor';
 import { StateMonitor } from './components/StateMonitor';
 import { RelationshipView } from './components/RelationshipView';
+import { RelationshipGraphView } from './RelationshipGraphView';
+import { VersionControlPanel } from './components/VersionControlPanel';
+import { PerformanceMonitor } from './components/PerformanceMonitor';
 import { DebugTabs } from './components/DebugTabs';
 import { useComponentContext } from '../../context/ComponentContextProvider';
 import './DebugPanel.css';
@@ -12,6 +15,7 @@ export interface DebugPanelProps extends Omit<BaseDebugPanelProps, 'mainContent'
   // Additional props specific to DebugPanel
   showRelationships?: boolean;
   showPerformance?: boolean;
+  showVersionControl?: boolean;
 }
 
 /**
@@ -28,6 +32,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
   className = '',
   showRelationships = true,
   showPerformance = false,
+  showVersionControl = true,
   ...restProps
 }) => {
   const { components, getComponent } = useComponentContext();
@@ -66,14 +71,46 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
                 label: 'State', 
                 content: <StateMonitor component={getComponent(selectedComponentId)!} /> 
               },
-              ...(showRelationships ? [{ 
-                id: 'relationships', 
-                label: 'Relationships', 
-                content: <RelationshipView 
-                  component={getComponent(selectedComponentId)!}
-                  components={components}
-                />
-              }] : []),
+              ...(showRelationships ? [
+                {
+                  id: 'relationships',
+                  label: 'Relationships',
+                  content: <RelationshipView
+                    component={getComponent(selectedComponentId)!}
+                    components={components}
+                  />
+                },
+                {
+                  id: 'relationship-graph',
+                  label: 'Relationship Graph',
+                  content: <RelationshipGraphView
+                    height={400}
+                    selectedComponentId={selectedComponentId}
+                    onSelectComponent={(id) => {
+                      // This would typically be handled by the BaseDebugPanel
+                      // The implementation would depend on how the panel manages selection
+                    }}
+                  />
+                }
+              ] : []),
+              ...(showVersionControl ? [
+                {
+                  id: 'version-control',
+                  label: 'Version Control',
+                  content: <VersionControlPanel
+                    component={getComponent(selectedComponentId)!}
+                  />
+                }
+              ] : []),
+              ...(showPerformance ? [
+                {
+                  id: 'performance',
+                  label: 'Performance',
+                  content: <PerformanceMonitor
+                    component={getComponent(selectedComponentId)!}
+                  />
+                }
+              ] : []),
               // Additional tabs can be added here conditionally
             ]}
           />

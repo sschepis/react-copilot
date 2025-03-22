@@ -1,44 +1,30 @@
 /**
- * Component Module
- * 
- * This module provides functionalities for managing modifiable components
- * including registration, version history, relationship tracking, and code execution.
+ * Component Services Module
+ * Provides services for component registry, relationships, and version control
  */
 
-// Export from core module (new architecture)
-export * from './core';
+export * from './ComponentRegistryAdapter';
+export * from './VersionControl';
+export * from './relationship';
 
-// Export adapters for backward compatibility
-export { default as ComponentRegistry } from './ComponentRegistryAdapter';
-export { RelationshipGraph } from './RelationshipGraph';
+// Re-export core registry
+export * from './core/ComponentRegistry';
 
-// Re-export useful types
-import {
-  ComponentRegistryEvents,
-  ComponentRegistrationOptions,
-  VersionCreationOptions,
-  VersionRevertOptions,
-  CodeChangeOptions,
-  ComponentGraphVisualization,
-  ComponentNode,
-  ComponentEdge
-} from './core/types';
-
+// Named re-exports from ComponentMetadata to avoid naming conflicts
 export {
-  ComponentRegistryEvents,
-  ComponentRegistrationOptions,
-  VersionCreationOptions,
-  VersionRevertOptions,
-  CodeChangeOptions,
-  ComponentGraphVisualization,
-  ComponentNode,
-  ComponentEdge
-};
-
-/**
- * Factory function to create a new component registry
- * 
- * @param permissions Optional permissions for code validation
- * @returns A new component registry instance
- */
-export { createComponentRegistry } from './core';
+  createDefaultMetadata,
+  extractMetadataFromSource,
+  updateMetadata,
+  trackRender,
+  addRelationship,
+  addPerformanceIssue,
+  addOptimizationSuggestion,
+  relationshipToMetadata,
+  updatePropMetadata,
+  ComponentMetadataModel,
+  ContextUsageInfo,
+  OptimizationSuggestion,
+  PerformanceIssue,
+  PropFlowInfo,
+  StateUsageInfo
+} from './core/ComponentMetadata';

@@ -3,6 +3,8 @@ export { LLMProvider } from './components/LLMProvider';
 export { ModifiableApp } from './components/ModifiableApp';
 export { ChatOverlay } from './components/ChatOverlay';
 export { AutonomousAgent } from './components/AutonomousAgent';
+export { MultiModalChatOverlay } from './components/MultiModalChatOverlay';
+export { MultiModalMessageDisplay, LegacyMessageAdapter } from './components/MultiModalMessageDisplay';
 
 // Export debug components
 export { DebugPanel } from './components/debug/DebugPanel';
@@ -25,8 +27,7 @@ export { useAutonomousMode } from './hooks/useAutonomousMode';
 export { useDebug } from './hooks/useDebug';
 
 // Export contexts
-export { useLLMContext } from './context/LLMContext';
-export { useComponentContext } from './context/ComponentContext';
+export { useLLMContext, useComponentContext } from './context';
 
 // Export plugins
 export { PluginManager } from './services/plugin/PluginManager';
@@ -37,6 +38,7 @@ export { ValidationPlugin } from './services/plugin/plugins/ValidationPlugin';
 
 // Export types
 export * from './utils/types';
+export * from './utils/types.multimodal';
 
 // Export version
 export const VERSION = '0.1.0';

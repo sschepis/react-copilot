@@ -1,6 +1,7 @@
 import { ReactNode, RefObject } from 'react';
 import { ModelOption, LLMCapabilities } from '../services/llm/LLMProviderAdapter';
 import { MessagePrepOptions } from '../context/core/types';
+import { VisualizationData } from '../services/component/relationship/types';
 
 // Debug panel types
 export interface DebugOptions {
@@ -197,7 +198,8 @@ export interface ComponentContextValue {
   getAffectedComponents: (componentId: string) => string[];
   // Additional methods (previously in ExtendedComponentContextValue)
   getRelatedStateKeys: (componentId: string) => string[];
-  visualizeComponentGraph: () => any;
+  visualizeComponentGraph: () => VisualizationData;
+  getAllComponents: () => Record<string, ModifiableComponent>;
 }
 
 // Performance profiling types

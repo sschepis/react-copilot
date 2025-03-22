@@ -72,35 +72,47 @@ export class InternationalizationPlugin extends BasePlugin {
   }
 }
 
+// Import our new fully implemented plugins
+import { reactFrameworkPlugin } from './ReactFrameworkPlugin';
+import { reduxStatePlugin } from './ReduxStatePlugin';
+import { multiModalPlugin } from './MultiModalPlugin';
+
 // Export plugin types
-export type { 
+export type {
   ValidationRule
 } from './ValidationPlugin';
 
-export type { 
+export type {
   AnalyticsEvent,
   AnalyticsPluginOptions
 } from './AnalyticsPlugin';
 
-export type { 
+export type {
   ComponentPerformanceData,
   PerformancePluginOptions
 } from './PerformancePlugin';
 
-export type { 
+export type {
   AccessibilityRule,
   AccessibilityPluginOptions
 } from './AccessibilityPlugin';
 
 export type { DocumentationPluginOptions } from './DocumentationPlugin';
 
-export type { 
+export type {
   ThemeConfig,
   ThemePluginOptions,
   ThemeContextType
 } from './ThemePlugin';
 
 export type { InternationalizationPluginOptions } from './InternationalizationPlugin';
+
+// Export our new plugin instances
+export {
+  reactFrameworkPlugin,
+  reduxStatePlugin,
+  multiModalPlugin
+};
 
 // Create a registry of all available plugins
 export const pluginRegistry = {
@@ -111,6 +123,10 @@ export const pluginRegistry = {
   'documentation-plugin': DocumentationPlugin,
   'theme-plugin': ThemePlugin,
   'i18n-plugin': InternationalizationPlugin,
+  // Add our new fully implemented plugins
+  'react-framework-plugin': reactFrameworkPlugin,
+  'redux-state-plugin': reduxStatePlugin,
+  'multi-modal-plugin': multiModalPlugin,
 };
 
 /**

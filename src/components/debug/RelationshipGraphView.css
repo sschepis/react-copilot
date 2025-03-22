@@ -1,0 +1,221 @@
+.relationship-graph-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.relationship-graph-controls {
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-label {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.relationship-search-input {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  width: 200px;
+  font-size: 0.9em;
+}
+
+.relationship-type-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.filter-checkbox input {
+  cursor: pointer;
+}
+
+.relationship-graph-view {
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 12px;
+  background-color: #fafafa;
+}
+
+.relationship-graph {
+  width: 100%;
+  height: 100%;
+  cursor: move;
+}
+
+/* Graph elements styling */
+.node circle {
+  transition: r 0.2s ease-out, fill 0.2s ease-out;
+}
+
+.node:hover circle {
+  filter: brightness(1.1);
+}
+
+.node.selected circle {
+  stroke: #ff5722;
+  stroke-width: 3px;
+}
+
+.node text {
+  font-size: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.link {
+  transition: stroke-opacity 0.2s;
+}
+
+.link:hover {
+  stroke-opacity: 1 !important;
+}
+
+/* Legend */
+.relationship-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 0.85em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.legend-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
+.legend-label {
+  color: #555;
+}
+
+/* Component info panel */
+.component-info-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-panel-title {
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.info-panel-section {
+  margin-bottom: 12px;
+}
+
+.info-panel-section h4 {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 6px 0;
+}
+
+.info-panel-content {
+  font-size: 0.9em;
+  color: #333;
+}
+
+.info-panel-relationships {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-panel-relationships li {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.relationship-badge {
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.badge-parent-child {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-prop-dependency {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.badge-state-dependency {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.info-panel-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #999;
+}
+
+.info-panel-close:hover {
+  color: #555;
+}

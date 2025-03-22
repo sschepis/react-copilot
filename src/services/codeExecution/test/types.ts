@@ -136,6 +136,8 @@ export interface TestGenerationOptions {
   includeTemplates?: boolean;
   /** Use test data factories */
   useTestDataFactories?: boolean;
+  /** Include snapshot tests */
+  includeSnapshots?: boolean;
   /** Custom options */
   customOptions?: Record<string, any>;
 }

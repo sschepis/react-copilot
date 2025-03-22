@@ -3,6 +3,7 @@
  */
 // Export main debug panel
 export { DebugPanel } from './DebugPanel';
+export { RelationshipGraphView } from './RelationshipGraphView';
 
 // Export base components
 export * from './base';
